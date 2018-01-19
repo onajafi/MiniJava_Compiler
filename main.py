@@ -13,8 +13,8 @@ while True:
     outprint = TScan.getChar(f.read(1))
     if outprint != None:
         print outprint
-        if(outprint[0]=="STOP"):
-            break;
+        if(outprint[1]=='EOF' or outprint[0]=="STOP"):
+            break
 
 f.close()
 

@@ -24,6 +24,9 @@ class tokenScanner():
     lastChar=""# When Character is not proccessed
     we_already_have_a_char=False
 
+    # For comments: When we see a '/' it means we have a comment...
+    last_state=-1# The state before entering a comment (we have to get back to this state after the comment
+
     def constructToken(self,lastChar):
         output = None
         if(self.state==0):
@@ -59,7 +62,10 @@ class tokenScanner():
             self.getChar(self.lastChar)
 
         if(self.state==0):
-            if(inputChar.isdigit()):
+            if(inputChar=='/'):#Check for comments
+                self.last_state=self.state
+                self.state = 6
+            elif(inputChar.isdigit()):
                 self.tempStr += inputChar
                 self.state = 2
             elif(inputChar.isalpha()):
@@ -77,19 +83,28 @@ class tokenScanner():
                 self.tempStr = ""
 
         elif(self.state==1):#ID
-            if(inputChar.isalpha() or inputChar.isdigit() or inputChar=='.'):
+            if (inputChar == '/'):  # Check for comments
+                self.last_state = self.state
+                self.state = 6
+            elif(inputChar.isalpha() or inputChar.isdigit() or inputChar=='.'):
                 self.tempStr += inputChar
             else:
                 return self.constructToken(inputChar)
 
         elif(self.state==2):#Digit
-            if (inputChar.isdigit()):
+            if (inputChar == '/'):  # Check for comments
+                self.last_state = self.state
+                self.state = 6
+            elif (inputChar.isdigit()):
                 self.tempStr += inputChar
             else:
                 return self.constructToken(inputChar)
 
         elif(self.state==3):# +|-
-            if (inputChar.isdigit()):
+            if (inputChar == '/'):  # Check for comments
+                self.last_state = self.state
+                self.state = 6
+            elif (inputChar.isdigit()):
                 self.tempStr += inputChar
                 self.state = 2
             elif(inputChar == '='):
@@ -99,14 +114,47 @@ class tokenScanner():
                 return self.constructToken(inputChar)
 
         elif(self.state==4):
-            if(inputChar in endOfST):
+            if (inputChar == '/'):  # Check for comments
+                self.last_state = self.state
+                self.state = 6
+            elif (inputChar in endOfST):
                 self.tempStr += inputChar
                 self.state = 5
             else:
                 return self.constructToken(inputChar)
 
         elif(self.state==5):
-            return self.constructToken(inputChar)
+            if (inputChar == '/'):  # Check for comments
+                self.last_state = self.state
+                self.state = 6
+            else:
+                return self.constructToken(inputChar)
+
+        # here is the comments section:
+        elif(self.state==6):
+            if(inputChar=='/'):
+                self.state = 7
+            elif (inputChar=='*'):
+                self.state = 8
+            else:# ERROR
+                pass
+
+        elif(self.state==7):
+            if(inputChar == '\n'):# back to work...
+                self.state = self.last_state
+
+        elif(self.state==8):
+            if(inputChar == '*'):
+                self.state = 9
+
+        elif(self.state==9):
+            if(inputChar == '/'):# back to work...
+                self.state = self.last_state
+            else:
+                self.state = 8
+
+
+
 
 
 
