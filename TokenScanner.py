@@ -1,9 +1,9 @@
 
 # Terminals that will be recognized as Identifiers but they are keys!!!
-keys={"EOF","public","class","Identifier","static",
-      "void","main","extends","return","boolean",
-      "int","if","else","while","for","Integer",
-      "true","false","identifier","integer","System.out.println"}
+keys={"EOF","public","class","static","void",
+      "main","extends","return","boolean",
+      "int","if","else","while","for","true",
+      "false","identifier","integer","System.out.println"}
 
 # Other Terminals
 simpleTerms={"{","}","(",")",";",",","=","+=","+","-",
@@ -137,7 +137,8 @@ class tokenScanner():
             elif (inputChar=='*'):
                 self.state = 8
             else:# ERROR
-                pass
+                print "Error maybe in defining the comment"
+                self.state = self.last_state
 
         elif(self.state==7):
             if(inputChar == '\n'):# back to work...
