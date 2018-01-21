@@ -1,22 +1,43 @@
 #!/usr/bin/env python
 
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNdyssosyhmMMMMMMMMMMMMMMMMMMMmdhyyyhmMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMMMh+.          `:sNMMMMMMMMMMMdo-`         -+hMMMMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMs.                 /mMMMMMMMy-                `oNMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMm.                     oMMMMm-    -::.            `hMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMd`                       +MMd`  .yNMMMMNs`           sMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMM.                         hM.  .NMMMMMMMMm`           dMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMd             -ohhhs/`     :N   +MMMMMMMMMM-           +MMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMy           `dMMMMMMMm:    -N   `mMMMMMMMMh            :MMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMm           yMMMMMMMMMN    +m    `+dNMMNh/             oMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMM+          sMMMMMMMMMm   `mM:       ``               `NMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMM/         `yMMMMMMMd.  `dMMN-                      `hMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMs`         ./sss+-   :mMMMMN+                    -mMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMNo.              `/dMMMMMMMMm/`               :hMMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMms/-`    `.:ohNMMMMMMMMMMMMNh+-`      `-/yNMMMMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNMMMMMMMMMMMMMMMMMMMMMMMNmmmmNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+# MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+# Believe The eyes
+
+
 import re
 import TokenScanner,LL1_Parser
 
 TScan = TokenScanner.tokenScanner()
 
 
-# f = open("testFile.txt", "r") #opens file with name of "test.txt"
-#
-#
-# while True:
-#     outprint = TScan.getChar(f.read(1))
-#     if outprint != None:
-#         print outprint
-#         if(outprint[1]=='EOF' or outprint[0]=="STOP"):
-#             break
-#
-# f.close()
+f = open("testFile.txt", "r") #opens file with name of "test.txt"
+
+
+while True:
+    outprint = TScan.getChar(f.read(1))
+    if outprint != None:
+        print outprint
+        if(outprint[1]=='EOF' or outprint[0]=="STOP"):
+            break
+
+f.close()
 
 # tempset = {("omg","yay"):["Hi","iiii"],"holymoly":"funny","idfdf":"dead end"}
 #

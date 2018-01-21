@@ -2,7 +2,7 @@ true
 False
 public static int test(int a,boolean b){
 int c;
-c=1;
+c=-1-1;
 int omg/*hi there!!!!!@EWFGSDFHS*/
 pop;
 b=true;

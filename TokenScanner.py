@@ -20,6 +20,7 @@ class tokenScanner():
 
     state=0
     tempStr=""
+    last_constructed_token=(None,None)
 
     lastChar=""# When Character is not proccessed
     we_already_have_a_char=False
@@ -52,6 +53,9 @@ class tokenScanner():
         if(lastChar not in (" ","\n")):
             self.we_already_have_a_char=True
             self.lastChar = lastChar
+
+        if(output != None):
+            self.last_constructed_token=output
 
         return output
 
@@ -104,7 +108,8 @@ class tokenScanner():
             if (inputChar == '/'):  # Check for comments
                 self.last_state = self.state
                 self.state = 6
-            elif (inputChar.isdigit()):
+            elif (inputChar.isdigit() and not (self.last_constructed_token[0] == "ID" or
+                                               self.last_constructed_token[0] == "INT")):# example c=1+1
                 self.tempStr += inputChar
                 self.state = 2
             elif(inputChar == '='):

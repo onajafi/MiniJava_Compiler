@@ -183,3 +183,54 @@ ll1ParseTable = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("MethodDeclarations",'}'):['epsilon'],
                 ("Statements",'}'):['epsilon']
                 }
+
+class scop():
+    """Saves the elements in a clean structure"""
+
+
+    pointer=[]# to point to other scopes!
+    elems=[]# the Identifiers
+    def __init__(self, name, parent_scop, extension = None):
+        self.pointer.append(parent_scop)
+        self.name=name
+        if(extension):
+            self.pointer.append(extension)
+
+    def add_ID(self,type,token):# INT|BOOLEAN
+        if(type=="int"):
+            self.elems.append((token[0],"INT",))
+        elif(type=="boolean"):
+            self.elems.append()
+        else:# ERROR
+            print "Undefined Type " + type
+
+
+    def add_OBJ(self,token):
+        pass
+
+    def add_FUNC(self,token):
+        pass
+
+
+
+
+
+
+def token_to_terminal(token):
+    pass
+
+class Parser():
+    """Receives every token and parses the inputs"""
+
+    # using a list as stack:
+    stack = ['$',"Goal"]
+
+    def get_token(self,token):
+        pass
+
+
+
+
+
+
+
