@@ -158,6 +158,7 @@ ll1ParseTable = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("RelExpression",'integer'):["RelTerm","D_PRIME"],
                 ("RelTerm",'integer'):["Expression","L_PRIME"],
                 ("Arguments",'integer'):["GenExpression","Argument"],
+                ("Integer",'integer'):['integer'],
 
                 ("VarDeclarations",'System.out.println'):['epsilon'],
                 ("Statements",'System.out.println'):["Statement","Statements"],
@@ -244,7 +245,7 @@ class FUNCscop():
 
 
 def token_to_terminal(token):
-    if(token[0]=='key'):
+    if(token[0]=='Key'):
         return token[1]
     elif(token[0]=='ID'):
         return 'identifier'
@@ -254,6 +255,7 @@ def token_to_terminal(token):
         return token[1]
     elif(token[0]=='ST'):
         return token[1]
+    return None
 
 class Parser():
     """Receives every token and parses the inputs"""
@@ -263,7 +265,8 @@ class Parser():
 
     def get_token(self,token):
         input_term = token_to_terminal(token)
-        while(True):
+        print token,input_term
+        while(self.stack[-1] != '$'):
             if(self.stack[-1] in Grammer.terminals):
                 if(self.stack[-1] == input_term):
                     print "accepted: " + self.stack.pop()
@@ -271,13 +274,22 @@ class Parser():
                 else:# Oh no an ERROR!!!
                     print "ERROR stack top is: " + self.stack[-1]
                     print "and input term is: " + input_term
-            elif(self.stack[-1] in Grammer.non_terminals):
+                    break
+            elif(self.stack[-1] in Grammer.non_terminals or self.stack[-1] in Grammer.added_non_terminals):
                 if( ll1ParseTable.has_key((self.stack[-1],input_term)) ):
-                    print "Reduced " + self.stack.pop()
                     temp_to_get_in_stack = ll1ParseTable[(self.stack[-1],input_term)]
+                    print "Reduced " + self.stack.pop()
                     self.stack.extend(temp_to_get_in_stack[::-1])
+                    if(self.stack[-1] == 'epsilon'):
+                        self.stack.pop()
+                    print self.stack[-1]
                 else:# ERROR we the LL(1) table is empty :(
                     print "LL(1) is empty..."
+                    print (self.stack[-1],input_term)
+                    break
+            else:
+                print "ERROR top of the stack is neither terminal nor non-terminal :" + self.stack[-1]
+                break
 
 
 

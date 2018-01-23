@@ -12,6 +12,14 @@ non_terminals = {"Goal","Source","MainClass",
              "Argument","Identifier",
              "Integer"
              }
+added_non_terminals = {"C_PRIME",
+                       "D_PRIME",
+                       "E_PRIME",
+                       "G_PRIME",
+                       "H_PRIME",
+                       "L_PRIME",
+                       "N_PRIME"
+                       }
 
 terminals = {'EOF','public','{',
              'static','void','main',

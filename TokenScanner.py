@@ -64,7 +64,7 @@ class tokenScanner():
         if(self.we_already_have_a_char):# There is a char left for process!
             self.we_already_have_a_char = False # We don't want to get in a loop!
             self.getChar(self.lastChar)
-
+        print "state is: " + str(self.state),self.tempStr
         if(self.state==0):
             if(inputChar=='/'):#Check for comments
                 self.last_state=self.state
