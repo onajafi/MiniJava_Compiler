@@ -27,21 +27,27 @@ import TokenScanner,LL1_Parser
 TScan = TokenScanner.tokenScanner()
 
 
-f = open("testFile.txt", "r") #opens file with name of "test.txt"
-
-
-while True:
-    outprint = TScan.getChar(f.read(1))
-    if outprint != None:
-        print outprint
-        if(outprint[1]=='EOF' or outprint[0]=="STOP"):
-            break
-
-f.close()
-
-# tempset = {("omg","yay"):["Hi","iiii"],"holymoly":"funny","idfdf":"dead end"}
+# f = open("testFile.txt", "r") #opens file with name of "test.txt"
 #
-# temp = tempset.has_key(("omg","yay"))
-# print len(tempset[("omg","yay")])
+#
+# while True:
+#     outprint = TScan.getChar(f.read(1))
+#     if outprint != None:
+#         print outprint
+#         if(outprint[1]=='EOF' or outprint[0]=="STOP"):
+#             break
+#
+# f.close()
+
+tempset = {("omg","yay"):["Hi","iiii"],"holymoly":"funny","idfdf":"dead end"}
+
+
+new = tempset
+tempset["holymoly"] = "OKM"
+temp_list=[1,2,3,4,5]
+llist2=[434,56,74,422]
+llist2.extend(temp_list[::-1])
+
+print llist2
 
 

@@ -1,12 +1,13 @@
-true
-False
-public static int test(int a,boolean b){
-int c;
-c=-1-1;
-int omg/*hi there!!!!!@EWFGSDFHS*/
-pop;
-b=true;
-return a+c;
+//true
+//False
+class Cls{
+    static boolean d;
+    public static int test(int a, boolean b){
+        int c;
+        c =1;
+        b=true;
+        return a+c;
+    }
 }
 // hi
 EOF

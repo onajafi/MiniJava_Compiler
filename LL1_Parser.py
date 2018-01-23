@@ -1,3 +1,6 @@
+
+import Grammer
+
 # Thanks to JFLAP for this parse table :)
 # The parse table works as a dictionary with
 # tuple type keys:
@@ -184,32 +187,56 @@ ll1ParseTable = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("Statements",'}'):['epsilon']
                 }
 
-class scop():
-    """Saves the elements in a clean structure"""
+data_memory_iterator = 200 #The start of the dynamic memory is here
+instruction_memory_block = 0
+def alloc_4byte():
+    global data_memory_iterator
+    output = data_memory_iterator
+    data_memory_iterator = data_memory_iterator + 4
+    return output
+
+def alloc_block():
+    output = instruction_memory_block
+    instruction_memory_block = instruction_memory_block + 1
+    return instruction_memory_block
+
+scop_list=[]# Where we keep all the scopes (class or functions)
 
 
-    pointer=[]# to point to other scopes!
+class CLSscop():# For classes
+    """Saves the elements of a CLASS in a clean structure"""
+
+    pointer=[]# to point to other scopes by there INDEX in scop_list! (python has no pointers!!!)
     elems=[]# the Identifiers
-    def __init__(self, name, parent_scop, extension = None):
-        self.pointer.append(parent_scop)
+    def __init__(self, name, parent_scop_index, extension_index = None):
+        self.pointer.append(parent_scop_index)
         self.name=name
-        if(extension):
-            self.pointer.append(extension)
+        if(extension_index):
+            self.pointer.append(extension_index)
 
     def add_ID(self,type,token):# INT|BOOLEAN
         if(type=="int"):
-            self.elems.append((token[0],"INT",))
+            self.elems.append((token[1],"INT",alloc_4byte()))
         elif(type=="boolean"):
-            self.elems.append()
+            self.elems.append((token[1],"BOOL",alloc_4byte()))
         else:# ERROR
             print "Undefined Type " + type
 
+    def add_FUNC(self, token, function_scop_index):
+        self.elems.append((token[1], "FUNC", function_scop_index))
 
-    def add_OBJ(self,token):
-        pass
+    # def add_OBJ(self,token):
+    #     self.elems.append(())
+    # didn't mention that every thing was static :D
 
-    def add_FUNC(self,token):
-        pass
+    def add_CLS(self,token,class_scop_index):
+        self.elems.append((token[1],"CLS",class_scop_index))
+
+class FUNCscop():
+    """Saves the elements of a FUNCTION and its subcode in a clean structure"""
+
+    code_block=[]# contains the output code :D
+    pass
 
 
 
@@ -217,7 +244,16 @@ class scop():
 
 
 def token_to_terminal(token):
-    pass
+    if(token[0]=='key'):
+        return token[1]
+    elif(token[0]=='ID'):
+        return 'identifier'
+    elif(token[0]=='INT'):
+        return 'integer'
+    elif(token[0]=='Opr'):
+        return token[1]
+    elif(token[0]=='ST'):
+        return token[1]
 
 class Parser():
     """Receives every token and parses the inputs"""
@@ -226,7 +262,28 @@ class Parser():
     stack = ['$',"Goal"]
 
     def get_token(self,token):
-        pass
+        input_term = token_to_terminal(token)
+        while(True):
+            if(self.stack[-1] in Grammer.terminals):
+                if(self.stack[-1] == input_term):
+                    print "accepted: " + self.stack.pop()
+                    break
+                else:# Oh no an ERROR!!!
+                    print "ERROR stack top is: " + self.stack[-1]
+                    print "and input term is: " + input_term
+            elif(self.stack[-1] in Grammer.non_terminals):
+                if( ll1ParseTable.has_key((self.stack[-1],input_term)) ):
+                    print "Reduced " + self.stack.pop()
+                    temp_to_get_in_stack = ll1ParseTable[(self.stack[-1],input_term)]
+                    self.stack.extend(temp_to_get_in_stack[::-1])
+                else:# ERROR we the LL(1) table is empty :(
+                    print "LL(1) is empty..."
+
+
+
+
+
+
 
 
 
