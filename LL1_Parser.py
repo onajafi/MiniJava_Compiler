@@ -264,8 +264,13 @@ class Parser():
     stack = ['$',"Goal"]
 
     def get_token(self,token):
+        if(token[0]=='STOP'):
+            print token[1]
+            return
+
         input_term = token_to_terminal(token)
         # print token,input_term
+
         while(self.stack[-1] != '$'):
             if(self.stack[-1] in Grammer.terminals):
                 if(self.stack[-1] == input_term):
