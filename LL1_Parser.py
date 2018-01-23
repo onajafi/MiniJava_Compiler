@@ -265,7 +265,7 @@ class Parser():
 
     def get_token(self,token):
         input_term = token_to_terminal(token)
-        print token,input_term
+        # print token,input_term
         while(self.stack[-1] != '$'):
             if(self.stack[-1] in Grammer.terminals):
                 if(self.stack[-1] == input_term):
@@ -284,7 +284,7 @@ class Parser():
                         self.stack.pop()
                     print self.stack[-1]
                 else:# ERROR we the LL(1) table is empty :(
-                    print "LL(1) is empty..."
+                    print "ERROR LL(1) is empty..."
                     print (self.stack[-1],input_term)
                     break
             else:

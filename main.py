@@ -34,8 +34,8 @@ f = open("testFile.txt", "r") #opens file with name of "test.txt"
 while True:
     outprint = TScan.getChar(f.read(1))
     if outprint != None:
-        print outprint
-        # my_parser.get_token(outprint)
+        #print outprint
+        my_parser.get_token(outprint)
         if(outprint[1]=='EOF' or outprint[0]=="STOP"):
             break
 
