@@ -1,6 +1,6 @@
 //true
 //False
-class Cls{
+/*class Cls{
     static boolean d;
     public static int test(int a, boolean b){
         int c;
@@ -8,13 +8,13 @@ class Cls{
         b=true;
         return a+c;
     }
-}
+}*/
 // hi
 public class Cls2 {
     public static void main(){
         int b;
         b=3;
-        b= Cls.test(b,false);
+        //b= Cls.test(b,false);
         System.out.println(b);
     }
 }
