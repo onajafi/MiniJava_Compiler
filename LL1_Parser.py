@@ -162,6 +162,7 @@ class Parser():
 
     in_func_scope = False
     PB=[]# Program Block
+    PC=0
     start_writing_in_PB = False
     SS=[]# Semantic Stack
 
@@ -180,20 +181,23 @@ class Parser():
             self.SS.pop()
             self.SS.append(ID_tuple[2])
         elif(action=="#pconst"):
-            pass
+            self.SS.append("#" + str(self.current_token[1]))
         elif(action=="#assign"):
-            pass
+            self.PB.append(("ASSIGN",self.SS[-1],self.SS[-2],None))
+            self.PC = self.PC + 1
+            self.SS.pop()
+            self.SS.pop()
         elif(action=="#addIDToSymTable"):
             if(self.in_func_scope):
-                FUNCscop_list[self.FUNscope_index].add_ID(self.last2_token[1],self.last1_token[1])
+                FUNCscop_list[self.FUNscope_index].add_ID(self.SS[-2],self.SS[-1])
             else:
-                print self.CLSscope_index
-                CLSscop_list[self.CLSscope_index].add_ID(self.last2_token[1],self.last1_token[1])
-                print "###Added: " + self.last2_token[1],self.last1_token[1]
+                CLSscop_list[self.CLSscope_index].add_ID(self.SS[-2],self.SS[-1])
             self.SS.pop()
             self.SS.pop()
         elif(action=="#systemPrint"):
-            pass
+            self.PB.append(("PRINT",self.SS[-1],None,None))
+            self.PC = self.PC + 1
+            self.SS.pop()
         elif(action=="#INT"):
             self.SS.append("int")
         elif(action=="#BOOL"):
@@ -217,6 +221,7 @@ class Parser():
         elif(action=="#none"):
             self.SS.append(None)
 
+
         if CODE_GENERATE_DBG:
             print "called " + action
             print self.current_token
@@ -224,8 +229,8 @@ class Parser():
 
     # using a list as stack:
     stack = ['$',"Goal"]
-    last2_token = None
-    last1_token = None
+    # last2_token = None
+    # last1_token = None
     current_token = None
 
     def get_token(self,token):
@@ -233,8 +238,8 @@ class Parser():
             print token[1]
             return
 
-        self.last2_token = self.last1_token
-        self.last1_token = self.current_token
+        # self.last2_token = self.last1_token
+        # self.last1_token = self.current_token
         self.current_token = token
         input_term = token_to_terminal(token)
         # print token,input_term

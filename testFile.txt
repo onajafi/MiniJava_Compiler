@@ -15,6 +15,7 @@ public class Cls2 {
         int b;
         int a;
         int omid;
+        boolean thebool;
         b=3;
         a =1111;
         omid = 234;
