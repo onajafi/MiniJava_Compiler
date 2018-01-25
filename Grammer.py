@@ -251,7 +251,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("G_PRIME",'+'):['epsilon'],
                 ("H_PRIME",'+'):['epsilon'],
 
-                ("Parameter",','):[',',"Type","Identifier","Parameter"],
+                ("Parameter",','):[',',"Type","Identifier","#insIDadd","Parameter"],
                 ("Argument",','):[',',"GenExpression","Argument"],
                 ("C_PRIME",','):['epsilon'],
                 ("D_PRIME",','):['epsilon'],
@@ -286,7 +286,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("MainClass", 'public'): ['public', 'class',
                                           "Identifier",'{','public',
                                           'static','void','main','(',
-                                          ')','{',"VarDeclarations","Statements",
+                                          ')','{',"#enteredMain","VarDeclarations","Statements",#OK !
                                           '}','}'],
                 ("ClassDeclarations", 'public'): ['epsilon'],
                 ("FieldDeclarations", 'public'): ['epsilon'],
@@ -301,9 +301,9 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("Goal",'class'):["Source",'EOF'],
                 ("Source", 'class'): ["ClassDeclarations", "MainClass"],
                 ("ClassDeclarations", 'class'): ["ClassDeclaration","ClassDeclarations"],
-                ("ClassDeclaration", 'class'): ['class',"Identifier","Extension",
+                ("ClassDeclaration", 'class'): ['class',"Identifier","Extension","#newCLSscope",#OK
                                                 '{',"FieldDeclarations","MethodDeclarations",
-                                                '}'],
+                                                '}',"#endCLSscope"],#OK
 
                 ("GenExpression", 'true'): ["Expression", "N_PRIME"],
                 ("Expression", 'true'): ["Term", "C_PRIME"],
@@ -343,14 +343,14 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("Statements",'return'):['epsilon'],
 
                 ("VarDeclarations",'boolean'):["VarDeclaration","VarDeclarations"],
-                ("VarDeclaration",'boolean'):["Type","#pid","Identifier","#addIDToSymTable",';'],#OK
-                ("Parameters",'boolean'):["Type","Identifier","Parameter"],
-                ("Type",'boolean'):['boolean'],
+                ("VarDeclaration",'boolean'):["Type","Identifier","#addIDToSymTable",';'],#OK !
+                ("Parameters",'boolean'):["Type","Identifier","#insIDadd","Parameter"],#OK
+                ("Type",'boolean'):["#BOOL",'boolean'],
 
                 ("VarDeclarations", 'int'): ["VarDeclaration", "VarDeclarations"],
-                ("VarDeclaration", 'int'): ["Type","#pid", "Identifier","#addIDToSymTable", ';'],#OK
-                ("Parameters", 'int'): ["Type", "Identifier", "Parameter"],
-                ("Type",'int'):['int'],
+                ("VarDeclaration", 'int'): ["Type","Identifier","#addIDToSymTable", ';'],#OK !
+                ("Parameters", 'int'): ["Type", "Identifier","#insIDadd", "Parameter"],#OK
+                ("Type",'int'):["#INT",'int'],
 
                 ("VarDeclarations",'if'):['epsilon'],
                 ("Statements",'if'):["Statement","Statements"],
@@ -364,9 +364,9 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
 
                 ("VarDeclarations",'for'):['epsilon'],
                 ("Statements",'for'):["Statement","Statements"],
-                ("Statement",'for'):['for','(',"Identifier",
+                ("Statement",'for'):['for','(',"Identifier","#insIDadd",#OK
                                      '=',"Integer",';',"RelTerm",';',
-                                     "Identifier",'+=',"Integer",')',
+                                     "Identifier","#insIDadd",'+=',"Integer",')',#OK
                                      "Statement"],
 
                 ("GenExpression", 'integer'): ["Expression", "N_PRIME"],
@@ -376,26 +376,26 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("RelExpression",'integer'):["RelTerm","D_PRIME"],
                 ("RelTerm",'integer'):["Expression","L_PRIME"],
                 ("Arguments",'integer'):["GenExpression","Argument"],
-                ("Integer",'integer'):['integer'],
+                ("Integer",'integer'):["#pconst",'integer'],#OK
 
                 ("VarDeclarations",'System.out.println'):['epsilon'],
                 ("Statements",'System.out.println'):["Statement","Statements"],
                 ("Statement",'System.out.println'):['System.out.println','(',
-                                                    "GenExpression",')',';'],
+                                                    "GenExpression",')',"#systemPrint",';'],#OK
 
                 ("VarDeclarations",'identifier'):['epsilon'],
                 ("Statements",'identifier'):["Statement","Statements"],
-                ("Statement",'identifier'):["#pid","Identifier",'=',"GenExpression",';',"#assign"],#OK
+                ("Statement",'identifier'):["Identifier","#insIDadd",'=',"GenExpression","#assign",';'],#OK
                 ("GenExpression",'identifier'):["Expression","N_PRIME"],
                 ("Expression",'identifier'):["Term","C_PRIME"],
                 ("Term",'identifier'):["Factor","E_PRIME"],
-                ("Factor",'identifier'):['identifier',"G_PRIME"],
+                ("Factor",'identifier'):["#pid",'identifier',"#insIDadd","G_PRIME"],#OK
                 ("RelExpression",'identifier'):["RelTerm","D_PRIME"],
                 ("RelTerm",'identifier'):["Expression","L_PRIME"],
                 ("Arguments",'identifier'):["GenExpression","Argument"],
-                ("Identifier",'identifier'):['identifier'],
+                ("Identifier",'identifier'):["#pid",'identifier'],#OK
 
-                ("Extension",'{'):['epsilon'],
+                ("Extension",'{'):["#none"],#OK ['epsilon']
                 ("VarDeclarations",'{'):['epsilon'],
                 ("Statements",'{'):["Statement","Statements"],
                 ("Statement",'{'):['{',"Statements",'}'],

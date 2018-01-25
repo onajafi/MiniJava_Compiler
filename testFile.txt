@@ -1,7 +1,7 @@
 //true
 //False
 /*class Cls{
-    static boolean d;
+    /*static boolean d;
     public static int test(int a, boolean b){
         int c;
         c =1;
@@ -13,7 +13,11 @@
 public class Cls2 {
     public static void main(){
         int b;
+        int a;
+        int omid;
         b=3;
+        a =1111;
+        omid = 234;
         //b= Cls.test(b,false);
         System.out.println(b);
     }

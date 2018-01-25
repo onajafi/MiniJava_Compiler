@@ -1,8 +1,15 @@
 
+PARSE_DBG = False
+CODE_GENERATE_DBG = True
+
 import Grammer
 from Grammer import ll1ParseTable_with_codegens
 
-codegen_inputs = {"#pid","#assign","#addIDToSymTable"
+codegen_inputs = {"#pid","#assign","#addIDToSymTable",
+                  "#systemPrint","#pconst","#BOOL","#INT","#popSS","#enteredMain",
+                  "#newCLSscope","#endCLSscope","#newFUNCScope","#endFUNCScope","#none",
+                  "#insIDadd"
+
 }
 
 data_memory_iterator = 200 #The start of the dynamic memory is here
@@ -19,8 +26,9 @@ def alloc_block():
     instruction_memory_block = instruction_memory_block + 1
     return instruction_memory_block
 
-CLSscop_list=[]# Where we keep all the scopes (class)
-FUNCscop_list=[]# Where we keep all the scopes (function)
+
+CLSscop_list = []  # Where we keep all the scopes (class)
+FUNCscop_list = []  # Where we keep all the scopes (function)
 
 
 class CLSscop():# For classes
@@ -36,11 +44,11 @@ class CLSscop():# For classes
         if(extension_index):
             self.pointer.append(extension_index)
 
-    def add_ID(self,type,token):# INT|BOOLEAN
+    def add_ID(self,type,id_name):# INT|BOOLEAN
         if(type=="int"):
-            self.id_elems.append((token[1],"INT",alloc_4byte()))
+            self.id_elems.append((id_name,"INT",alloc_4byte()))
         elif(type=="boolean"):
-            self.id_elems.append((token[1],"BOOL",alloc_4byte()))
+            self.id_elems.append((id_name,"BOOL",alloc_4byte()))
         else:# ERROR
             print "Undefined Type " + type
 
@@ -93,11 +101,11 @@ class FUNCscop():
         self.pointer.append(parent_scop_index)
         self.name=name
 
-    def add_ID(self,type,token):# INT|BOOLEAN
+    def add_ID(self,type,id_name):# INT|BOOLEAN
         if(type=="int"):
-            self.elems.append((token[1],"INT",alloc_4byte()))
+            self.id_elems.append((id_name,"INT",alloc_4byte()))
         elif(type=="boolean"):
-            self.elems.append((token[1],"BOOL",alloc_4byte()))
+            self.id_elems.append((id_name,"BOOL",alloc_4byte()))
         else:# ERROR
             print "Undefined Type " + type
 
@@ -149,35 +157,93 @@ class Parser():
             return None
         return elem[2]# the address given from alloc_4byte()
 
+    CLSscope_index = -1
+    FUNscope_index = -1
 
+    in_func_scope = False
     PB=[]# Program Block
+    start_writing_in_PB = False
     SS=[]# Semantic Stack
 
     def codegen(self,action):# Generate the final code and save in PB[]
-        if(action=="#pid"):
+        if(action=="#pid"):# the input could be a class name or a functon name or an ID name...
+            self.SS.append(self.current_token[1])
+        elif(action=="#insIDadd"):
+            if (self.in_func_scope):
+                ID_tuple=FUNCscop_list[self.FUNscope_index].give_ID_elem(self.SS[-1])
+            else:
+                ID_tuple=CLSscop_list[self.CLSscope_index].give_ID_elem(self.SS[-1])
+
+            if(ID_tuple==None):#ERROR semantic
+                print "Undefined identifier: " + self.SS[-1]
+                return
+            self.SS.pop()
+            self.SS.append(ID_tuple[2])
+        elif(action=="#pconst"):
             pass
         elif(action=="#assign"):
             pass
         elif(action=="#addIDToSymTable"):
+            if(self.in_func_scope):
+                FUNCscop_list[self.FUNscope_index].add_ID(self.last2_token[1],self.last1_token[1])
+            else:
+                print self.CLSscope_index
+                CLSscop_list[self.CLSscope_index].add_ID(self.last2_token[1],self.last1_token[1])
+                print "###Added: " + self.last2_token[1],self.last1_token[1]
+            self.SS.pop()
+            self.SS.pop()
+        elif(action=="#systemPrint"):
             pass
-        print "called " + action
+        elif(action=="#INT"):
+            self.SS.append("int")
+        elif(action=="#BOOL"):
+            self.SS.append("boolean")
+        elif(action=="#popSS"):
+            # self.SS.pop()
+            pass
+        elif(action=="#enteredMain"):
+            self.start_writing_in_PB = True
+            self.in_func_scope = True
+            FUNCscop_list.append(FUNCscop("_MAIN",None))
+            self.CLSscope_index = self.CLSscope_index + 1
+        elif(action=="#newCLSscope"):
+            if(self.SS[-1] != None):# The class has an extension
+                CLSscop_list.append(CLSscop(self.SS[-2],CLSscop(self.SS[-1])))
+            else:
+                CLSscop_list.append(CLSscop(self.SS[-2]))
+            self.CLSscope_index = self.CLSscope_index + 1
+            self.SS.pop()
+            self.SS.pop()
+        elif(action=="#none"):
+            self.SS.append(None)
+
+        if CODE_GENERATE_DBG:
+            print "called " + action
+            print self.current_token
 
 
     # using a list as stack:
     stack = ['$',"Goal"]
+    last2_token = None
+    last1_token = None
+    current_token = None
 
     def get_token(self,token):
         if(token[0]=='STOP'):
             print token[1]
             return
 
+        self.last2_token = self.last1_token
+        self.last1_token = self.current_token
+        self.current_token = token
         input_term = token_to_terminal(token)
         # print token,input_term
 
         while(self.stack[-1] != '$'):
             if(self.stack[-1] in Grammer.terminals):
                 if(self.stack[-1] == input_term):
-                    #print "accepted: " + self.stack[-1]
+                    if PARSE_DBG:
+                        print "accepted: " + self.stack[-1]
                     self.stack.pop()
                     break
                 else:# Oh no an ERROR!!!
@@ -187,7 +253,8 @@ class Parser():
             elif(self.stack[-1] in Grammer.non_terminals or self.stack[-1] in Grammer.added_non_terminals):
                 if( ll1ParseTable_with_codegens.has_key((self.stack[-1],input_term)) ):
                     temp_to_get_in_stack = ll1ParseTable_with_codegens[(self.stack[-1],input_term)]
-                    #print "Reduced " + self.stack[-1]
+                    if PARSE_DBG:
+                        print "Reduced " + self.stack[-1]
                     self.stack.pop()
                     self.stack.extend(temp_to_get_in_stack[::-1])
                     if(self.stack[-1] == 'epsilon'):
@@ -199,13 +266,13 @@ class Parser():
                     break
             elif(self.stack[-1] in codegen_inputs):
                 self.codegen(self.stack.pop())
-                print "GOT #"
+                # print "GOT " + self.stack[-1]
             else:
                 print "ERROR top of the stack is neither a codegen_input, terminal nor non-terminal :" + self.stack[-1]
                 break
 
             # Check for a code generator element on top of the stack (with #)
-
+        print self.SS
 
 
 
