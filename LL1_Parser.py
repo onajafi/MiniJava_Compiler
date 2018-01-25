@@ -8,7 +8,7 @@ from Grammer import ll1ParseTable_with_codegens
 codegen_inputs = {"#pid","#assign","#addIDToSymTable",
                   "#systemPrint","#pconst","#BOOL","#INT","#popSS","#enteredMain",
                   "#newCLSscope","#endCLSscope","#newFUNCScope","#endFUNCScope","#none",
-                  "#insIDadd"
+                  "#insIDadd","#GenTheCode","#pCLS_ID","#pCLS_FUNC"
 
 }
 
@@ -30,16 +30,20 @@ def alloc_block():
 CLSscop_list = []  # Where we keep all the scopes (class)
 FUNCscop_list = []  # Where we keep all the scopes (function)
 
+def give_CLS_index(CLS_name):
+    for index,elem in enumerate(CLSscop_list):
+        if elem.name == CLS_name:
+            return index
+    return None
 
 class CLSscop():# For classes
     """Saves the elements of a CLASS in a clean structure"""
 
-    # To point to other scopes by there INDEX in CLSscop_list! (python has no pointers!!!)
-    pointer=[]# These scopes share there identifier and functions with this scop
-    id_elems=[]# the Identifiers
-    func_elems = []  # the Identifiers
-
     def __init__(self, name, extension_index = None):
+        # To point to other scopes by there INDEX in CLSscop_list! (python has no pointers!!!)
+        self.pointer=[]# These scopes share there identifier and functions with this scop
+        self.id_elems=[]# the Identifiers
+        self.func_elems = []  # the Identifiers
         self.name=name
         if(extension_index):
             self.pointer.append(extension_index)
@@ -54,11 +58,11 @@ class CLSscop():# For classes
 
     def give_ID_elem(self, id_name):  # Find an ID
         output = None  # the element tuple goes here
-        for elem in self.id_elems:
+        for elem in self.id_elems:# Check in current scope
             if (elem[0] == id_name):
                 output = elem
                 break
-        if (output == None):
+        if (output == None):# Check in parents
             for index in self.pointer:
                 output = CLSscop_list[index].give_ID_elem(id_name)
                 if (output != None):
@@ -92,12 +96,11 @@ class CLSscop():# For classes
 class FUNCscop():
     """Saves the elements of a FUNCTION and its subcode in a clean structure"""
 
-    pointer=[]# to point to other scopes by there INDEX in CLSscop_list! (python has no pointers!!!)
-    id_elems = []# The Identifiers
-    func_elems = []# The functions
-    code_block = []# contains the output code :D
-
     def __init__(self, name, parent_scop_index):
+        self.pointer = []  # to point to other scopes by there INDEX in CLSscop_list! (python has no pointers!!!)
+        self.id_elems = []  # The Identifiers
+        self.func_elems = []  # The functions
+        self.code_block = []  # contains the output code :D
         self.pointer.append(parent_scop_index)
         self.name=name
 
@@ -115,7 +118,7 @@ class FUNCscop():
             if(elem[0]==id_name):
                 output = elem
                 break
-        if(output == None):
+        if(output == None and self.name != "_MAIN"):
             for index in self.pointer:
                 output=CLSscop_list[index].give_ID_elem(id_name)
                 if (output != None):
@@ -129,7 +132,6 @@ class FUNCscop():
             output = CLSscop_list[index].give_FUNC_elem(func_name)
             if(output != None):
                 break
-
 
 
 
@@ -149,6 +151,8 @@ def token_to_terminal(token):
 class Parser():
     """Receives every token and parses the inputs"""
 
+    abort = False# Will go True if there is an error
+
     # Find the memory address of a given ID
     # We assume that this method is called in a function scope (it really is)
     def findaddr(self,input_ID,func_scop_index):
@@ -167,19 +171,27 @@ class Parser():
     SS=[]# Semantic Stack
 
     def codegen(self,action):# Generate the final code and save in PB[]
+        if CODE_GENERATE_DBG:
+            print "___________________"
+            print "called " + action
+            print "Current token:" , self.current_token
+            print "SS:" , self.SS
+            print "Parser stack:", self.stack
+
         if(action=="#pid"):# the input could be a class name or a functon name or an ID name...
             self.SS.append(self.current_token[1])
-        elif(action=="#insIDadd"):
+        elif(action=="#insIDadd"):# Put the address of an Id in the scope instead of there name
             if (self.in_func_scope):
                 ID_tuple=FUNCscop_list[self.FUNscope_index].give_ID_elem(self.SS[-1])
             else:
                 ID_tuple=CLSscop_list[self.CLSscope_index].give_ID_elem(self.SS[-1])
 
             if(ID_tuple==None):#ERROR semantic
-                print "Undefined identifier: " + self.SS[-1]
+                print "Undefined identifier: " + self.SS[-1] + "\nAborted parsing..."
+                self.abort = True
                 return
             self.SS.pop()
-            self.SS.append(ID_tuple[2])
+            self.SS.append(ID_tuple[2])# Here we put the address
         elif(action=="#pconst"):
             self.SS.append("#" + str(self.current_token[1]))
         elif(action=="#assign"):
@@ -187,7 +199,7 @@ class Parser():
             self.PC = self.PC + 1
             self.SS.pop()
             self.SS.pop()
-        elif(action=="#addIDToSymTable"):
+        elif(action=="#addIDToSymTable"):# Add an entry to the symbol table
             if(self.in_func_scope):
                 FUNCscop_list[self.FUNscope_index].add_ID(self.SS[-2],self.SS[-1])
             else:
@@ -212,7 +224,13 @@ class Parser():
             self.CLSscope_index = self.CLSscope_index + 1
         elif(action=="#newCLSscope"):
             if(self.SS[-1] != None):# The class has an extension
-                CLSscop_list.append(CLSscop(self.SS[-2],CLSscop(self.SS[-1])))
+                the_parent_CLS_index = give_CLS_index(self.SS[-1])
+                if(the_parent_CLS_index != None):
+                    CLSscop_list.append(CLSscop(self.SS[-2],the_parent_CLS_index))
+                else:# ERROR semantic
+                    print "The extension " + self.SS[-1] + " was not found\nAborted parsing..."
+                    self.abort = True
+
             else:
                 CLSscop_list.append(CLSscop(self.SS[-2]))
             self.CLSscope_index = self.CLSscope_index + 1
@@ -220,11 +238,25 @@ class Parser():
             self.SS.pop()
         elif(action=="#none"):
             self.SS.append(None)
+        elif(action=="#GenTheCode"):
+            pass
+        elif(action=="#pCLS_ID"):
+            the_CLS_index = give_CLS_index(self.SS[-2])
+            if (the_CLS_index != None):
+                the_elem = CLSscop_list[the_CLS_index].give_ID_elem(self.SS[-1])
+                if(the_elem != None):
+                    self.SS.pop()
+                    self.SS.pop()
+                    self.SS.append(the_elem[2])
+                else:#ERROR semantic
+                    print "There is no variable or function in the current scope named: " + self.SS[-1]
+                    print "Aborted parsing..."
+                    self.abort = True
+            else:#ERROR semantic
+                print "There is no defined class named " + self.SS[-2] + "\nAborted parsing..."
+                self.abort = True
+        # elif(action=="")
 
-
-        if CODE_GENERATE_DBG:
-            print "called " + action
-            print self.current_token
 
 
     # using a list as stack:
@@ -244,7 +276,7 @@ class Parser():
         input_term = token_to_terminal(token)
         # print token,input_term
 
-        while(self.stack[-1] != '$'):
+        while((not self.abort) and self.stack[-1] != '$'):
             if(self.stack[-1] in Grammer.terminals):
                 if(self.stack[-1] == input_term):
                     if PARSE_DBG:
@@ -277,7 +309,7 @@ class Parser():
                 break
 
             # Check for a code generator element on top of the stack (with #)
-        print self.SS
+
 
 
 

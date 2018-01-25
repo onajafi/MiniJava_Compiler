@@ -238,46 +238,46 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("C_PRIME",')'):['epsilon'],
                 ("D_PRIME",')'):['epsilon'],
                 ("E_PRIME",')'):['epsilon'],
-                ("G_PRIME",')'):['epsilon'],
-                ("H_PRIME",')'):['epsilon'],
+                ("G_PRIME",')'):["#insIDadd"],
+                ("H_PRIME",')'):["#pCLS_ID"],#OK
                 ("N_PRIME",')'):['epsilon'],
 
                 ("E_PRIME",'*'):['*',"Factor","E_PRIME"],
-                ("G_PRIME",'*'):['epsilon'],
-                ("H_PRIME",'*'):['epsilon'],
+                ("G_PRIME",'*'):["#insIDadd"],
+                ("H_PRIME",'*'):["#pCLS_ID"],#OK
 
                 ("C_PRIME",'+'):['+',"Term","C_PRIME"],
                 ("E_PRIME",'+'):['epsilon'],
-                ("G_PRIME",'+'):['epsilon'],
-                ("H_PRIME",'+'):['epsilon'],
+                ("G_PRIME",'+'):["#insIDadd"],
+                ("H_PRIME",'+'):["#pCLS_ID"],#OK
 
                 ("Parameter",','):[',',"Type","Identifier","#insIDadd","Parameter"],
                 ("Argument",','):[',',"GenExpression","Argument"],
                 ("C_PRIME",','):['epsilon'],
                 ("D_PRIME",','):['epsilon'],
                 ("E_PRIME",','):['epsilon'],
-                ("G_PRIME",','):['epsilon'],
-                ("H_PRIME",','):['epsilon'],
+                ("G_PRIME",','):["#insIDadd"],
+                ("H_PRIME",','):["#pCLS_ID"],#OK
                 ("N_PRIME",','):['epsilon'],
 
                 ("C_PRIME",'-'):['-',"Term","C_PRIME"],
                 ("E_PRIME",'-'):['epsilon'],
-                ("G_PRIME",'-'):['epsilon'],
-                ("H_PRIME",'-'):['epsilon'],
+                ("G_PRIME",'-'):["#insIDadd"],
+                ("H_PRIME",'-'):["#pCLS_ID"],#OK
 
-                ("G_PRIME",'.'):['.','identifier',"H_PRIME"],
+                ("G_PRIME",'.'):['.',"Identifier","H_PRIME"],# Changed "identifier" to "Identifier" and #OK
 
                 ("C_PRIME",';'):['epsilon'],
                 ("D_PRIME",';'):['epsilon'],
                 ("E_PRIME",';'):['epsilon'],
-                ("G_PRIME",';'):['epsilon'],
-                ("H_PRIME",';'):['epsilon'],
+                ("G_PRIME",';'):["#insIDadd"],
+                ("H_PRIME",';'):["#pCLS_ID"],#OK
                 ("N_PRIME",';'):['epsilon'],
 
                 ("C_PRIME",'<'):['epsilon'],
                 ("E_PRIME",'<'):['epsilon'],
-                ("G_PRIME",'<'):['epsilon'],
-                ("H_PRIME",'<'):['epsilon'],
+                ("G_PRIME",'<'):["#insIDadd"],
+                ("H_PRIME",'<'):["#pCLS_ID"],#OK
                 ("L_PRIME",'<'):['<',"Expression"],
                 ("N_PRIME",'<'):["L_PRIME","D_PRIME"],
 
@@ -287,7 +287,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                                           "Identifier",'{','public',
                                           'static','void','main','(',
                                           ')','{',"#enteredMain","VarDeclarations","Statements",#OK !
-                                          '}','}'],
+                                          '}',"#GenTheCode",'}'],
                 ("ClassDeclarations", 'public'): ['epsilon'],
                 ("FieldDeclarations", 'public'): ['epsilon'],
                 ("MethodDeclarations", 'public'): ["MethodDeclaration", "MethodDeclarations"],
@@ -314,7 +314,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("Arguments",'true'):["GenExpression","Argument"],
 
                 ("FieldDeclarations",'static'):["FieldDeclaration","FieldDeclarations"],
-                ("FieldDeclaration",'static'):['static',"Type","Identifier",';'],
+                ("FieldDeclaration",'static'):['static',"Type","Identifier","#addIDToSymTable",';'],#OK
 
                 ("GenExpression", 'false'): ["Expression", "N_PRIME"],
                 ("Expression", 'false'): ["Term", "C_PRIME"],
@@ -327,13 +327,13 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("C_PRIME",'&&'):['epsilon'],
                 ("D_PRIME",'&&'):['&&',"RelTerm","D_PRIME"],
                 ("E_PRIME",'&&'):['epsilon'],
-                ("G_PRIME",'&&'):['epsilon'],
-                ("H_PRIME",'&&'):['epsilon'],
+                ("G_PRIME",'&&'):["#insIDadd"],
+                ("H_PRIME",'&&'):["#pCLS_ID"],#OK
 
                 ("C_PRIME",'=='):['epsilon'],
                 ("E_PRIME",'=='):['epsilon'],
-                ("G_PRIME",'=='):['epsilon'],
-                ("H_PRIME",'=='):['epsilon'],
+                ("G_PRIME",'=='):["#insIDadd"],#OK ['epsilon']
+                ("H_PRIME",'=='):["#pCLS_ID"],#OK
                 ("L_PRIME",'=='):['==',"Expression"],
                 ("N_PRIME",'=='):["L_PRIME","D_PRIME"],
 
@@ -389,7 +389,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("GenExpression",'identifier'):["Expression","N_PRIME"],
                 ("Expression",'identifier'):["Term","C_PRIME"],
                 ("Term",'identifier'):["Factor","E_PRIME"],
-                ("Factor",'identifier'):["#pid",'identifier',"#insIDadd","G_PRIME"],#OK
+                ("Factor",'identifier'):["#pid",'identifier',"G_PRIME"],#OK !
                 ("RelExpression",'identifier'):["RelTerm","D_PRIME"],
                 ("RelTerm",'identifier'):["Expression","L_PRIME"],
                 ("Arguments",'identifier'):["GenExpression","Argument"],

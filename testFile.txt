@@ -1,14 +1,30 @@
 //true
 //False
-/*class Cls{
+class Cls{
+    static int foo;
+    static int OMG;
     /*static boolean d;
     public static int test(int a, boolean b){
         int c;
         c =1;
         b=true;
         return a+c;
-    }
-}*/
+    }*/
+}
+
+class Cls123 extends Cls {
+    //static boolean d;
+    //static int funn;
+    static int foo;
+    /*public static int test(int a, boolean b){
+        int c;
+        c =1;
+        b=true;
+        return a+c;
+    }*/
+}
+
+
 // hi
 public class Cls2 {
     public static void main(){
@@ -17,10 +33,10 @@ public class Cls2 {
         int omid;
         boolean thebool;
         b=3;
-        a =1111;
+        a = Cls.foo;
         omid = 234;
         //b= Cls.test(b,false);
-        System.out.println(b);
+        System.out.println(Cls123.foo);
     }
 }
 
