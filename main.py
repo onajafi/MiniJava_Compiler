@@ -41,8 +41,8 @@ while True:
 
 f.close()
 print "\nThe output will be like:"
-for command in my_parser.PB:
-    print command
+for line,command in enumerate(my_parser.PB):
+    print line,command
 
 # tempset = {("omg","yay"):["Hi","iiii"],"holymoly":"funny","idfdf":"dead end"}
 #

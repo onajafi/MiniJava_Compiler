@@ -9,7 +9,9 @@ codegen_inputs = {"#pid","#assign","#addIDToSymTable",
                   "#systemPrint","#pconst","#BOOL","#INT","#popSS","#enteredMain",
                   "#newCLSscope","#endCLSscope","#newFUNCScope","#endFUNCScope","#none",
                   "#insIDadd","#GenTheCode","#pCLS_ID","#pCLS_FUNC",
-                  "#MULT","#ADD","#SUB"
+                  "#MULT","#ADD","#SUB",
+                  "#genIf","#genElse","#endIf",
+                  "#LT","#EQ","#andRelTerms"
 
 }
 
@@ -196,7 +198,7 @@ class Parser():
             self.SS.append(ID_tuple[1])# Here we put the address
             self.SS.append(ID_tuple[2])# Here we put the address
         elif(action=="#pconst"):
-            self.SS.append(None)
+            self.SS.append("INT")
             self.SS.append("#" + str(self.current_token[1]))
         elif(action=="#assign"):
             if(self.SS[-2] not in ("BOOL","INT") or self.SS[-4] not in ("BOOL","INT")
@@ -315,8 +317,61 @@ class Parser():
                 print "Can't do subtraction on booleans !!!"
                 print "Aborted parsing..."
                 self.abort = True
-
-
+        elif(action=="#LT"):
+            if (self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
+                temp_WORD = alloc_4byte()
+                self.PB.append(("LT", self.SS[-3], self.SS[-1], temp_WORD))
+                self.PC = self.PC + 1
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.append("BOOL")
+                self.SS.append(temp_WORD)
+            else:  # ERROR semantic
+                print "Can't comapare booleans !!!"
+                print "Aborted parsing..."
+                self.abort = True
+        elif(action=="#EQ"):
+            temp_WORD = alloc_4byte()
+            self.PB.append(("EQ", self.SS[-3], self.SS[-1], temp_WORD))
+            self.PC = self.PC + 1
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.append("BOOL")
+            self.SS.append(temp_WORD)
+        elif(action=="#andRelTerms"):
+            if (self.SS[-2] != "INT" and self.SS[-4] != "INT"):
+                temp_WORD = alloc_4byte()
+                self.PB.append(("AND", self.SS[-3], self.SS[-1], temp_WORD))
+                self.PC = self.PC + 1
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.append("BOOL")
+                self.SS.append(temp_WORD)
+            else:  # ERROR semantic
+                print "Can't use an integer in a logical operation"
+                print "Aborted parsing..."
+                self.abort = True
+        elif(action=="#genIf"):
+            self.SS.append(self.PC)# Saving the address space for JPF command
+            self.PB.append(None)# We will fill this in #genElse
+            self.PC = self.PC + 1
+        elif(action=="#genElse"):
+            self.PB[self.SS[-1]] = ("JPF",self.SS[-2],self.PC+1,None)#we want it to jump to PC+1 because this line should not be called if we go in else
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.append(self.PC)# Saving the address space for JP command
+            self.PB.append(None)# We will fill this in #endIf
+            self.PC = self.PC + 1
+        elif(action=="#endIf"):
+            self.PB[self.SS[-1]] = ("JP",self.PC,None,None)
+            self.SS.pop()
 
     # using a list as stack:
     stack = ['$',"Goal"]

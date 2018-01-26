@@ -278,7 +278,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("E_PRIME",'<'):['epsilon'],
                 ("G_PRIME",'<'):["#insIDadd"],
                 ("H_PRIME",'<'):["#pCLS_ID"],#OK
-                ("L_PRIME",'<'):['<',"Expression"],
+                ("L_PRIME",'<'):['<',"Expression","#LT"],
                 ("N_PRIME",'<'):["L_PRIME","D_PRIME"],
 
                 ("Goal",'public'):["Source",'EOF'],
@@ -325,7 +325,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("Arguments",'false'):["GenExpression","Argument"],
 
                 ("C_PRIME",'&&'):['epsilon'],
-                ("D_PRIME",'&&'):['&&',"RelTerm","D_PRIME"],
+                ("D_PRIME",'&&'):['&&',"RelTerm","#andRelTerms","D_PRIME"],
                 ("E_PRIME",'&&'):['epsilon'],
                 ("G_PRIME",'&&'):["#insIDadd"],
                 ("H_PRIME",'&&'):["#pCLS_ID"],#OK
@@ -334,7 +334,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("E_PRIME",'=='):['epsilon'],
                 ("G_PRIME",'=='):["#insIDadd"],#OK ['epsilon']
                 ("H_PRIME",'=='):["#pCLS_ID"],#OK
-                ("L_PRIME",'=='):['==',"Expression"],
+                ("L_PRIME",'=='):['==',"Expression","#EQ"],
                 ("N_PRIME",'=='):["L_PRIME","D_PRIME"],
 
                 ("Extension",'extends'):['extends',"Identifier"],
@@ -354,8 +354,8 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
 
                 ("VarDeclarations",'if'):['epsilon'],
                 ("Statements",'if'):["Statement","Statements"],
-                ("Statement",'if'):['if','(',"GenExpression",')',
-                                    "Statement",'else',"Statement"],
+                ("Statement",'if'):['if','(',"GenExpression",')',"#genIf",
+                                    "Statement",'else',"#genElse","Statement","#endIf"],
 
                 ("VarDeclarations",'while'):['epsilon'],
                 ("Statements",'while'):["Statement","Statements"],
