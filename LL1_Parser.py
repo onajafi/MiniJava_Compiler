@@ -481,7 +481,7 @@ class Parser():
                     print "The table Entry is:", (self.stack[-1],input_term)
                     if USING_PanicMode:
                         print "Using Panic Mode error recovery:"
-                        print "Skipping input signal: " + input_term
+                        print "Skipping input token:", self.current_token
                         break#Getting out of the loop
                     else:
                         break
