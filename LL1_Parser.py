@@ -270,7 +270,6 @@ class Parser():
             else:#ERROR semantic
                 print "There is no defined class named " + self.SS[-2] + "\nAborted parsing..."
                 self.abort = True
-        # elif(action=="")
         elif(action=="#MULT"):
             if(self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
                 temp_WORD = alloc_4byte()
@@ -287,9 +286,35 @@ class Parser():
                 print "Aborted parsing..."
                 self.abort=True
         elif(action=="#ADD"):
-            pass
+            if (self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
+                temp_WORD = alloc_4byte()
+                self.PB.append(("ADD", self.SS[-1], self.SS[-3], temp_WORD))
+                self.PC = self.PC + 1
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.append("INT")
+                self.SS.append(temp_WORD)
+            else:  # ERROR semantic
+                print "Can't do addition on booleans !!!"
+                print "Aborted parsing..."
+                self.abort = True
         elif(action=="#SUB"):
-            pass
+            if (self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
+                temp_WORD = alloc_4byte()
+                self.PB.append(("SUB", self.SS[-3], self.SS[-1], temp_WORD))
+                self.PC = self.PC + 1
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.append("INT")
+                self.SS.append(temp_WORD)
+            else:  # ERROR semantic
+                print "Can't do subtraction on booleans !!!"
+                print "Aborted parsing..."
+                self.abort = True
 
 
 

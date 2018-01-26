@@ -246,7 +246,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("G_PRIME",'*'):["#insIDadd"],
                 ("H_PRIME",'*'):["#pCLS_ID"],#OK
 
-                ("C_PRIME",'+'):['+',"Term","C_PRIME"],
+                ("C_PRIME",'+'):['+',"Term","#ADD","C_PRIME"],
                 ("E_PRIME",'+'):['epsilon'],
                 ("G_PRIME",'+'):["#insIDadd"],
                 ("H_PRIME",'+'):["#pCLS_ID"],#OK
@@ -260,7 +260,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("H_PRIME",','):["#pCLS_ID"],#OK
                 ("N_PRIME",','):['epsilon'],
 
-                ("C_PRIME",'-'):['-',"Term","C_PRIME"],
+                ("C_PRIME",'-'):['-',"Term","#SUB","C_PRIME"],
                 ("E_PRIME",'-'):['epsilon'],
                 ("G_PRIME",'-'):["#insIDadd"],
                 ("H_PRIME",'-'):["#pCLS_ID"],#OK
