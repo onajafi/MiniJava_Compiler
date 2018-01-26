@@ -403,7 +403,80 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("FieldDeclarations",'}'):['epsilon'],
                 ("VarDeclarations",'}'):['epsilon'],
                 ("MethodDeclarations",'}'):['epsilon'],
-                ("Statements",'}'):['epsilon']
+                ("Statements",'}'):['epsilon'],
+
+                ##### For Panic Mode:
+                ("Goal",'$'):["--SYNCH--"],
+
+                ("Source",'EOF'):["--SYNCH--"],
+
+                ("MainClass", 'EOF'):["--SYNCH--"],
+
+                ("ClassDeclaration", 'public'): ["--SYNCH--"],
+
+                ("FieldDeclaration", 'public'): ["--SYNCH--"],
+                ("FieldDeclaration", '}'): ["--SYNCH--"],
+
+                ("VarDeclaration", 'if'): ["--SYNCH--"],
+                ("VarDeclaration", 'while'): ["--SYNCH--"],
+                ("VarDeclaration", 'for'): ["--SYNCH--"],
+                ("VarDeclaration", 'System.out.println'): ["--SYNCH--"],
+                ("VarDeclaration", 'identifier'): ["--SYNCH--"],
+                ("VarDeclaration", '{'): ["--SYNCH--"],
+                ("VarDeclaration", '}'): ["--SYNCH--"],
+                ("VarDeclaration", 'return'): ["--SYNCH--"],
+
+                ("MethodDeclaration", '}'): ["--SYNCH--"],
+
+                ("Type", 'identifier'): ["--SYNCH--"],
+
+                ("Statement", 'else'): ["--SYNCH--"],
+                ("Statement", '}'): ["--SYNCH--"],
+                ("Statement", 'return'): ["--SYNCH--"],
+
+                ("GenExpression", ')'): ["--SYNCH--"],
+                ("GenExpression", ';'): ["--SYNCH--"],
+                ("GenExpression", ','): ["--SYNCH--"],
+
+                ("Expression", ')'): ["--SYNCH--"],
+                ("Expression", '&&'): ["--SYNCH--"],
+                ("Expression", '=='): ["--SYNCH--"],
+                ("Expression", ';'): ["--SYNCH--"],
+                ("Expression", '<'): ["--SYNCH--"],
+                ("Expression", ','): ["--SYNCH--"],
+
+                ("Term", ')'): ["--SYNCH--"],
+                ("Term", '&&'): ["--SYNCH--"],
+                ("Term", '=='): ["--SYNCH--"],
+                ("Term", ';'): ["--SYNCH--"],
+                ("Term", '+'): ["--SYNCH--"],
+                ("Term", '<'): ["--SYNCH--"],
+                ("Term", ','): ["--SYNCH--"],
+                ("Term", '-'): ["--SYNCH--"],
+
+                ("Factor", ')'): ["--SYNCH--"],
+                ("Factor", '&&'): ["--SYNCH--"],
+                ("Factor", '*'): ["--SYNCH--"],
+                ("Factor", '=='): ["--SYNCH--"],
+                ("Factor", ';'): ["--SYNCH--"],
+                ("Factor", '+'): ["--SYNCH--"],
+                ("Factor", '<'): ["--SYNCH--"],
+                ("Factor", ','): ["--SYNCH--"],
+                ("Factor", '-'): ["--SYNCH--"],
+
+                ("RelTerm", ')'): ["--SYNCH--"],
+                ("RelTerm", '&&'): ["--SYNCH--"],
+                ("RelTerm", ';'): ["--SYNCH--"],
+                ("RelTerm", ','): ["--SYNCH--"],
+
+                ("Identifier", '+='): ["--SYNCH--"],
+                ("Identifier", '('): ["--SYNCH--"],
+                ("Identifier", ')'): ["--SYNCH--"],
+                ("Identifier", '{'): ["--SYNCH--"],
+                ("Identifier", 'extends'): ["--SYNCH--"],
+                ("Identifier", ';'): ["--SYNCH--"],
+                ("Identifier", ','): ["--SYNCH--"],
+                ("Identifier", '='): ["--SYNCH--"],
 
                 }
 

@@ -1,6 +1,8 @@
 
 PARSE_DBG = False
-CODE_GENERATE_DBG = True
+CODE_GENERATE_DBG = False
+
+USING_PanicMode = True
 
 import Grammer
 from Grammer import ll1ParseTable_with_codegens
@@ -170,6 +172,7 @@ class Parser():
     CLSscope_index = -1
     FUNscope_index = -1
 
+    Error_CNT = 0#Counting the errors (which are recovered by panic mode)
 
     in_func_scope = False
     PB=[]# Program Block
@@ -257,7 +260,9 @@ class Parser():
         elif(action=="#none"):
             self.SS.append(None)
         elif(action=="#GenTheCode"):
-            pass
+
+            print "\nFinished Compilation with " + str(self.Error_CNT) \
+                  + " warnings (Panic mode recoveries)"
         elif(action=="#pCLS_ID"):# For finding the address of: identifier.identifier
             the_CLS_index = give_CLS_index(self.SS[-2])
             if (the_CLS_index != None):
@@ -416,8 +421,6 @@ class Parser():
 
 
 
-
-
     # using a list as stack:
     stack = ['$',"Goal"]
     # last2_token = None
@@ -443,11 +446,17 @@ class Parser():
                     self.stack.pop()
                     break
                 else:# Oh no an ERROR!!!
-                    print "ERROR stack top is: " + self.stack[-1]
+                    self.Error_CNT = self.Error_CNT + 1
+                    print "\nERROR stack top is: " + self.stack[-1]
                     print "and input term is: " + input_term
-                    break
+                    if USING_PanicMode:
+                        print "Using Panic Mode error recovery:"
+                        print "Poping: " + self.stack.pop()
+                    else:
+                        break
             elif(self.stack[-1] in Grammer.non_terminals or self.stack[-1] in Grammer.added_non_terminals):
-                if( ll1ParseTable_with_codegens.has_key((self.stack[-1],input_term)) ):
+                if( ll1ParseTable_with_codegens.has_key((self.stack[-1],input_term))
+                    and ll1ParseTable_with_codegens[(self.stack[-1],input_term)] != ["--SYNCH--"]):
                     temp_to_get_in_stack = ll1ParseTable_with_codegens[(self.stack[-1],input_term)]
                     if PARSE_DBG:
                         print "Reduced " + self.stack[-1]
@@ -456,18 +465,34 @@ class Parser():
                     if(self.stack[-1] == 'epsilon'):
                         self.stack.pop()
                     # print self.stack[-1]
+                elif(ll1ParseTable_with_codegens.has_key((self.stack[-1],input_term))
+                    and ll1ParseTable_with_codegens[(self.stack[-1],input_term)] == ["--SYNCH--"]):# LL(1) table shows a SYNCH
+                    self.Error_CNT = self.Error_CNT + 1
+                    print "\nERROR LL(1) table is shows Synch"
+                    print "The table Entry is:", (self.stack[-1], input_term)
+                    if USING_PanicMode:
+                        print "Using Panic Mode error recovery:"
+                        print "Poping: " + self.stack.pop()
+                    else:
+                        break
                 else:# ERROR we the LL(1) table is empty :(
-                    print "ERROR LL(1) is empty..."
-                    print (self.stack[-1],input_term)
-                    break
+                    self.Error_CNT = self.Error_CNT + 1
+                    print "\nERROR LL(1) table is empty..."
+                    print "The table Entry is:", (self.stack[-1],input_term)
+                    if USING_PanicMode:
+                        print "Using Panic Mode error recovery:"
+                        print "Skipping input signal: " + input_term
+                        break#Getting out of the loop
+                    else:
+                        break
             elif(self.stack[-1] in codegen_inputs):
                 self.codegen(self.stack.pop())
                 # print "GOT " + self.stack[-1]
-            else:
+            else:#If we reach here, there is a problem from the compiler
                 print "ERROR top of the stack is neither a codegen_input, terminal nor non-terminal :" + self.stack[-1]
                 break
 
-            # Check for a code generator element on top of the stack (with #)
+
 
 
 

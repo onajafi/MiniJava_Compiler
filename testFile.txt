@@ -36,7 +36,7 @@ public class Cls2 {
         thebool = false;
         //omid=(56-23423)*omid*766;
         //thebool = Cls.d;
-        omid = 200;
+        omid 34= 200;
         if(false == true )
         {
             omid = 0;
