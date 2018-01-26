@@ -3,8 +3,8 @@
 class Cls{
     static int foo;
     static int OMG;
-    /*static boolean d;
-    public static int test(int a, boolean b){
+    static boolean d;
+    /*public static int test(int a, boolean b){
         int c;
         c =1;
         b=true;
@@ -33,7 +33,7 @@ public class Cls2 {
         int omid;
         boolean thebool;
         b=3;
-        a = Cls.foo;
+        thebool = Cls.d;
         omid = 234;
         //b= Cls.test(b,false);
         System.out.println(Cls123.foo);

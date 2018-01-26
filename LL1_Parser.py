@@ -164,6 +164,7 @@ class Parser():
     CLSscope_index = -1
     FUNscope_index = -1
 
+
     in_func_scope = False
     PB=[]# Program Block
     PC=0
@@ -176,7 +177,7 @@ class Parser():
             print "called " + action
             print "Current token:" , self.current_token
             print "SS:" , self.SS
-            print "Parser stack:", self.stack
+            # print "Parser stack:", self.stack
 
         if(action=="#pid"):# the input could be a class name or a functon name or an ID name...
             self.SS.append(self.current_token[1])
@@ -191,14 +192,25 @@ class Parser():
                 self.abort = True
                 return
             self.SS.pop()
+            self.SS.append(ID_tuple[1])# Here we put the address
             self.SS.append(ID_tuple[2])# Here we put the address
         elif(action=="#pconst"):
             self.SS.append("#" + str(self.current_token[1]))
         elif(action=="#assign"):
-            self.PB.append(("ASSIGN",self.SS[-1],self.SS[-2],None))
+            if(self.SS[-2] not in ("BOOL","INT") or self.SS[-4] not in ("BOOL","INT")
+               or self.SS[-2] == self.SS[-4]):# Chaecking the types!!! ("BOOL","INT")
+                self.PB.append(("ASSIGN",self.SS[-1],self.SS[-3],None))
+            else:#ERROR semantic
+                print "can't assign two different type: BOOL and INT"
+                print "Aborted parsing..."
+                self.abort=True
             self.PC = self.PC + 1
             self.SS.pop()
+            if(self.SS[-1] in ("BOOL","INT")):#Only do an extra pop if its a type ("BOOL" or "INT")
+                self.SS.pop()
             self.SS.pop()
+            if (self.SS[-1] in ("BOOL", "INT")):  # Only do an extra pop if its a type ("BOOL" or "INT")
+                self.SS.pop()
         elif(action=="#addIDToSymTable"):# Add an entry to the symbol table
             if(self.in_func_scope):
                 FUNCscop_list[self.FUNscope_index].add_ID(self.SS[-2],self.SS[-1])
@@ -209,6 +221,7 @@ class Parser():
         elif(action=="#systemPrint"):
             self.PB.append(("PRINT",self.SS[-1],None,None))
             self.PC = self.PC + 1
+            self.SS.pop()
             self.SS.pop()
         elif(action=="#INT"):
             self.SS.append("int")
@@ -240,16 +253,18 @@ class Parser():
             self.SS.append(None)
         elif(action=="#GenTheCode"):
             pass
-        elif(action=="#pCLS_ID"):
+        elif(action=="#pCLS_ID"):# For finding the address of: identifier.identifier
             the_CLS_index = give_CLS_index(self.SS[-2])
             if (the_CLS_index != None):
                 the_elem = CLSscop_list[the_CLS_index].give_ID_elem(self.SS[-1])
                 if(the_elem != None):
                     self.SS.pop()
                     self.SS.pop()
+                    self.SS.append(the_elem[1])
                     self.SS.append(the_elem[2])
                 else:#ERROR semantic
-                    print "There is no variable or function in the current scope named: " + self.SS[-1]
+                    print "There is no variable or function in the class " + self.SS[-2] \
+                          + " scope, named: " + self.SS[-1]
                     print "Aborted parsing..."
                     self.abort = True
             else:#ERROR semantic
