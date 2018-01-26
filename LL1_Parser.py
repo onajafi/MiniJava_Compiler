@@ -8,7 +8,8 @@ from Grammer import ll1ParseTable_with_codegens
 codegen_inputs = {"#pid","#assign","#addIDToSymTable",
                   "#systemPrint","#pconst","#BOOL","#INT","#popSS","#enteredMain",
                   "#newCLSscope","#endCLSscope","#newFUNCScope","#endFUNCScope","#none",
-                  "#insIDadd","#GenTheCode","#pCLS_ID","#pCLS_FUNC"
+                  "#insIDadd","#GenTheCode","#pCLS_ID","#pCLS_FUNC",
+                  "#MULT","#ADD","#SUB"
 
 }
 
@@ -196,6 +197,7 @@ class Parser():
             self.SS.append(ID_tuple[2])# Here we put the address
         elif(action=="#pconst"):
             self.SS.append("#" + str(self.current_token[1]))
+            self.SS.append(None)
         elif(action=="#assign"):
             if(self.SS[-2] not in ("BOOL","INT") or self.SS[-4] not in ("BOOL","INT")
                or self.SS[-2] == self.SS[-4]):# Chaecking the types!!! ("BOOL","INT")
@@ -206,11 +208,9 @@ class Parser():
                 self.abort=True
             self.PC = self.PC + 1
             self.SS.pop()
-            if(self.SS[-1] in ("BOOL","INT")):#Only do an extra pop if its a type ("BOOL" or "INT")
-                self.SS.pop()
             self.SS.pop()
-            if (self.SS[-1] in ("BOOL", "INT")):  # Only do an extra pop if its a type ("BOOL" or "INT")
-                self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
         elif(action=="#addIDToSymTable"):# Add an entry to the symbol table
             if(self.in_func_scope):
                 FUNCscop_list[self.FUNscope_index].add_ID(self.SS[-2],self.SS[-1])
@@ -271,6 +271,13 @@ class Parser():
                 print "There is no defined class named " + self.SS[-2] + "\nAborted parsing..."
                 self.abort = True
         # elif(action=="")
+        elif(action=="#MULT"):
+            pass
+            # if(self.SS[])
+        elif(action=="#ADD"):
+            pass
+        elif(action=="#SUB"):
+            pass
 
 
 
