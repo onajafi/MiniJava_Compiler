@@ -32,7 +32,7 @@ public class Cls2 {
         int a;
         int omid;
         boolean thebool;
-        b=3;
+        b=56*omid*8;
         thebool = Cls.d;
         omid = 234;
         //b= Cls.test(b,false);

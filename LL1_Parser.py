@@ -196,21 +196,21 @@ class Parser():
             self.SS.append(ID_tuple[1])# Here we put the address
             self.SS.append(ID_tuple[2])# Here we put the address
         elif(action=="#pconst"):
-            self.SS.append("#" + str(self.current_token[1]))
             self.SS.append(None)
+            self.SS.append("#" + str(self.current_token[1]))
         elif(action=="#assign"):
             if(self.SS[-2] not in ("BOOL","INT") or self.SS[-4] not in ("BOOL","INT")
                or self.SS[-2] == self.SS[-4]):# Chaecking the types!!! ("BOOL","INT")
                 self.PB.append(("ASSIGN",self.SS[-1],self.SS[-3],None))
+                self.PC = self.PC + 1
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
             else:#ERROR semantic
                 print "can't assign two different type: BOOL and INT"
                 print "Aborted parsing..."
                 self.abort=True
-            self.PC = self.PC + 1
-            self.SS.pop()
-            self.SS.pop()
-            self.SS.pop()
-            self.SS.pop()
         elif(action=="#addIDToSymTable"):# Add an entry to the symbol table
             if(self.in_func_scope):
                 FUNCscop_list[self.FUNscope_index].add_ID(self.SS[-2],self.SS[-1])
@@ -272,8 +272,20 @@ class Parser():
                 self.abort = True
         # elif(action=="")
         elif(action=="#MULT"):
-            pass
-            # if(self.SS[])
+            if(self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
+                temp_WORD = alloc_4byte()
+                self.PB.append(("MULT", self.SS[-1], self.SS[-3], temp_WORD))
+                self.PC = self.PC + 1
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.pop()
+                self.SS.append("INT")
+                self.SS.append(temp_WORD)
+            else:#ERROR semantic
+                print "Can't multiply booleans !!!"
+                print "Aborted parsing..."
+                self.abort=True
         elif(action=="#ADD"):
             pass
         elif(action=="#SUB"):

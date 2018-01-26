@@ -242,7 +242,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("H_PRIME",')'):["#pCLS_ID"],#OK
                 ("N_PRIME",')'):['epsilon'],
 
-                ("E_PRIME",'*'):['*',"Factor","E_PRIME"],
+                ("E_PRIME",'*'):['*',"Factor","#MULT","E_PRIME"],
                 ("G_PRIME",'*'):["#insIDadd"],
                 ("H_PRIME",'*'):["#pCLS_ID"],#OK
 
