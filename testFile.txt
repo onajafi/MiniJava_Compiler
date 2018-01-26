@@ -32,19 +32,32 @@ public class Cls2 {
         int a;
         int omid;
         boolean thebool;
+        boolean test;
+        thebool = false;
         //omid=(56-23423)*omid*766;
         //thebool = Cls.d;
-        omid = 234;
-        if(omid == 234)
+        omid = 200;
+        if(false == true )
         {
             omid = 0;
+            System.out.println(12345);
         }
         else
         {
             omid = 20;
+            System.out.println(0);
         }
+        /*while(10 < omid && thebool == false)
+        {
+            System.out.println(omid);
+            omid = omid - 1;
+        }*/
+        /*for(a =20;a<40;a +=3)
+        {
+            System.out.println(a);
+        }*/
         //b= Cls.test(b,false);
-        System.out.println(Cls123.foo);
+        //System.out.println(omid);
     }
 }
 

@@ -11,7 +11,10 @@ codegen_inputs = {"#pid","#assign","#addIDToSymTable",
                   "#insIDadd","#GenTheCode","#pCLS_ID","#pCLS_FUNC",
                   "#MULT","#ADD","#SUB",
                   "#genIf","#genElse","#endIf",
-                  "#LT","#EQ","#andRelTerms"
+                  "#LT","#EQ","#andRelTerms",
+                  "#pBOOLconst",
+                  "#SAVE_PC","#genWhile","#endWhile",
+                  "#genFor","#endFor"
 
 }
 
@@ -362,7 +365,7 @@ class Parser():
             self.PB.append(None)# We will fill this in #genElse
             self.PC = self.PC + 1
         elif(action=="#genElse"):
-            self.PB[self.SS[-1]] = ("JPF",self.SS[-2],self.PC+1,None)#we want it to jump to PC+1 because this line should not be called if we go in else
+            self.PB[self.SS[-1]] = ("JPF",self.SS[-2],self.PC+1,None)# We want it to jump to PC+1 because this line should not be called if we go in else
             self.SS.pop()
             self.SS.pop()
             self.SS.pop()
@@ -372,6 +375,48 @@ class Parser():
         elif(action=="#endIf"):
             self.PB[self.SS[-1]] = ("JP",self.PC,None,None)
             self.SS.pop()
+        elif(action=="#pBOOLconst"):
+            self.SS.append("BOOL")
+            if(self.current_token[1]=='false'):
+                self.SS.append("#0")
+            else:# self.current_token[1]=='true'
+                self.SS.append("#1")
+        elif(action=="#SAVE_PC"):
+            self.SS.append(self.PC)
+        elif(action=="#genWhile"):
+            self.SS.append(self.PC)  # Saving the address space for JPF command
+            self.PB.append(None)  # We will fill this in #endWhile
+            self.PC = self.PC + 1
+        elif(action=="#endWhile"):
+            self.PB[self.SS[-1]] = ("JPF",self.SS[-2],self.PC+1,None)#We want it to jump to PC+1 when the RelTerm is false
+            self.PB.append(("JP",self.SS[-4],None,None))
+            self.PC = self.PC + 1
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+        elif(action=="#genFor"):
+            self.SS.append(self.PC)  # Saving the address space for JPF command
+            self.PB.append(None)  # We will fill this in #endFor
+            self.PC = self.PC + 1
+        elif(action=="#endFor"):
+            self.PB.append(("ADD",self.SS[-3],self.SS[-1],self.SS[-3]))
+            self.PC = self.PC + 1
+            self.PB[self.SS[-5]] = ("JPF",self.SS[-6],self.PC+1,None)#We want it to jump to PC+1 when the RelTerm is false
+            self.PB.append(("JP",self.SS[-8],None,None))
+            self.PC = self.PC + 1
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+            self.SS.pop()
+
+
+
+
 
     # using a list as stack:
     stack = ['$',"Goal"]

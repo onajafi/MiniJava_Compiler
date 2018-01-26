@@ -42,7 +42,23 @@ while True:
 f.close()
 print "\nThe output will be like:"
 for line,command in enumerate(my_parser.PB):
-    print line,command
+    print line, command
+
+
+output_file = open("output.txt","w")
+for line,command in enumerate(my_parser.PB):
+    output_file.write(str(line) + "\t" + '(')
+    if (command[0] != None):
+        output_file.write(str(command[0])+ ', ')
+    if (command[1] != None):
+        output_file.write(str(command[1]) + ', ')
+    if (command[2] != None):
+        output_file.write(str(command[2]) + ', ')
+    if (command[3] != None):
+        output_file.write(str(command[3]))
+    output_file.write(')\n')
+
+output_file.close()
 
 # tempset = {("omg","yay"):["Hi","iiii"],"holymoly":"funny","idfdf":"dead end"}
 #
