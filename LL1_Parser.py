@@ -4,6 +4,8 @@ CODE_GENERATE_DBG = True
 
 USING_PanicMode = True
 
+GIVE_INITIAL_VALS_TO_VARS = True
+
 data_memory_iterator = 2000 #The start of the dynamic memory is here
 stack_memory_start = 4000 #The start of the stack in memory
 stack_pointer = 3996#The stack pointer (SP)
@@ -275,6 +277,9 @@ class Parser():
         elif(action=="#addIDToSymTable"):# Add an entry to the symbol table
             if(self.in_func_scope):
                 FUNCscop_list[self.FUNscope_index].add_ID(self.SS[-2],self.SS[-1])
+                if GIVE_INITIAL_VALS_TO_VARS:
+                    self.PB.append(("ASSIGN","#0",FUNCscop_list[self.FUNscope_index].id_elems[-1][2],None))
+                    self.PC = self.PC + 1
             else:
                 CLSscop_list[self.CLSscope_index].add_ID(self.SS[-2],self.SS[-1])
             self.SS.pop()

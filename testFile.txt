@@ -24,8 +24,6 @@ class myClass extends Math{
         int i;
         int t1;
         int t2;
-        t1 = 0;
-        t2 = 0;
         i = 0;
         if(input < 1)
         {
@@ -52,7 +50,10 @@ class myClass extends Math{
 public class MainCls {
     public static void main(){
         //Here is how we call the function:
+        int i;
+        i = i +1000003;
         System.out.println(myClass.fibonacci(10));
+        System.out.println(i);
     }
 }
 
