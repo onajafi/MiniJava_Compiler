@@ -53,7 +53,7 @@ class CLSscop():# For classes
         self.id_elems=[]# the Identifiers
         self.func_indx = []  # the Identifiers
         self.name=name
-        if(extension_index):
+        if(extension_index!=None):
             self.pointer.append(extension_index)
 
     def add_ID(self,type,id_name):# INT|BOOLEAN
@@ -117,7 +117,7 @@ class CLSscop():# For classes
 class FUNCscop():
     """Saves the elements of a FUNCTION and its subcode in a clean structure"""
 
-    def __init__(self, name, parent_scop_index):
+    def __init__(self, name, CLS_scop_index):
         self.pointer = []  #To point to other scopes by there INDEX in CLSscop_list! (python has no pointers!!!)
         self.id_elems = []  #The Identifiers
         self.code_block = []  #Contains the output code :D
@@ -126,8 +126,11 @@ class FUNCscop():
         self.return_type = None
         self.name=name
         self.address=0
-
-        self.pointer.append(parent_scop_index)
+        self.is_main = False
+        if CLS_scop_index != None:
+            self.pointer.append(CLS_scop_index)
+        else:
+            self.is_main = True
 
     def add_ID(self,type,id_name):# INT|BOOLEAN
         if(type=="int"):
@@ -218,7 +221,9 @@ class Parser():
         self.PC = self.PC + 1
         self.PB.append(("ASSIGN", '@'+str(tempaddr), dst_add, None))
         self.PC = self.PC + 1
-
+    def gen_mv_stack_pointer(self,index):
+        self.PB.append(("ADD", stack_pointer, '#' + str(4 * index), stack_pointer))
+        self.PC = self.PC + 1
 
 
     def codegen(self,action):# Generate the final code and save in PB[]
@@ -233,6 +238,7 @@ class Parser():
             self.SS.append(self.current_token[1])
         elif(action=="#insIDadd"):# Put the address of an Id in the scope instead of there name
             if (self.in_func_scope):
+                print "FLAG4:",self.SS[-1]
                 ID_tuple=FUNCscop_list[self.FUNscope_index].give_ID_elem(self.SS[-1])
             else:
                 ID_tuple=CLSscop_list[self.CLSscope_index].give_ID_elem(self.SS[-1])
@@ -282,7 +288,9 @@ class Parser():
         elif(action=="#enteredMain"):
             self.in_func_scope = True
             FUNCscop_list.append(FUNCscop(self.SS[-1],None))
+            # CLSscop_list.append(CLSscop(self.SS[-1], None))
             self.SS.pop()
+
             self.CLSscope_index = self.CLSscope_index + 1
             self.FUNscope_index = self.FUNscope_index + 1
             #Cleaning the Code Block to put the new function codes in it
@@ -307,6 +315,7 @@ class Parser():
         elif(action=="#none"):
             self.SS.append(None)
         elif(action=="#GenTheCode"):
+            # self.PB.append(("PRINT", 3996,None ,None ))
             self.PB.append((None,None,None,None))
             CodeLength=len(self.PB)
             Exit_comm_index = CodeLength - 1
@@ -345,7 +354,7 @@ class Parser():
                         self.PB[i][1], FUNCscop_list[self.PB[i][2][1]].address,
                         self.PB[i][3])
                 i = i + 1
-                print i
+
             for idx in range(1,len(FUNCscop_list)):
                 while(i<start_list[idx+1]):
                     if(isinstance(self.PB[i][1],tuple)):
@@ -362,7 +371,7 @@ class Parser():
                             self.PB[i] = (self.PB[i][0], self.PB[i][1], FUNCscop_list[self.PB[i][2][1]].address, self.PB[i][3])
                         # elif (self.PB[i][2][0] == '#^'):
                         #     self.PB[i] = (self.PB[i][0], self.PB[i][1], "#"+str(FUNCscop_list[idx].address + self.PB[i][2][1]), self.PB[i][3])
-                    i = i+1
+                    i = i + 1
             self.PB[Exit_comm_index] = ("JP",CodeLength,None,None)
 
             print "\nFinished Compilation with " + str(self.Error_CNT) \
@@ -377,7 +386,7 @@ class Parser():
                     self.SS.append(the_elem[1])
                     self.SS.append(the_elem[2])
                 else:#ERROR semantic
-                    print "There is no variable or function in the class " + self.SS[-2] \
+                    print "There is no variable in the [parent] class  " + self.SS[-2] \
                           + " scope, named: " + self.SS[-1]
                     print "Aborted parsing..."
                     self.abort = True
@@ -525,12 +534,12 @@ class Parser():
         elif(action=="#genFunc"):
             self.in_func_scope = True
             #Adding function to FUNC list
-            FUNCscop_list.append(FUNCscop(self.SS[-1], None))
+            FUNCscop_list.append(FUNCscop(self.SS[-1],self.CLSscope_index))
             self.FUNscope_index = self.FUNscope_index + 1
-            #Adding FUNC to the class
+            #Adding FUNC to the current class
             CLSscop_list[self.CLSscope_index].add_FUNC_idx(self.FUNscope_index)
 
-            if(self.SS[-2]=="int"):
+            if(self.SS[-2]=="int"):#fuction return type
                 FUNCscop_list[self.FUNscope_index].return_type = "INT"
             else:#if(self.SS[-2]=="boolean"):
                 FUNCscop_list[self.FUNscope_index].return_type = "BOOL"
@@ -548,8 +557,8 @@ class Parser():
                 print "Aborted parsing..."
                 self.abort = True
             self.gen_push_stack(self.SS[-1])#Saving the return value of the function
-            self.SS.pop()
-            self.SS.pop()
+            self.SS.pop()#The return val address
+            self.SS.pop()#The return val type
 
             temp_ret_add=alloc_4byte()
             self.gen_read_stack(temp_ret_add,-2)
@@ -571,7 +580,7 @@ class Parser():
                 the_FUNC_idx = CLSscop_list[the_CLS_index].give_FUNC_Index(self.SS[-1])
                 if(the_FUNC_idx != None):
                     # Saving function index we have to change the tuple with the start of functions block address
-                    self.PB.append(("JP", ("*", the_FUNC_idx), None,None))
+                    self.PB.append(("JP", ("*", the_FUNC_idx), None,None))#Here we jump to the called function
                     self.PC = self.PC + 1
                     self.SS.pop()
                     self.SS.pop()
@@ -590,6 +599,8 @@ class Parser():
             self.gen_pop_stack(temp_ret_val)
             self.SS.append(None)  # Don't know the return type
             self.SS.append(temp_ret_val)
+            # There is a an address which we don't need it anymore
+            self.gen_mv_stack_pointer(-1)#moving SP a unit down
 
 
 

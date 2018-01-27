@@ -4,35 +4,34 @@ class Cls{
     static int foo;
     static int OMG;
     static boolean d;
-    /*public static int test(int a, boolean b){
-        int c;
-        c =1;
-        b=true;
-        return a+c;
-    }*/
+
     public static int qwe(){
         int a;
         int g;
         a=13;
         g=23;
+        foo = 12;
         return a+g;
     }
 }
 
-class Cls123 extends Cls {
-    //static boolean d;
-    //static int funn;
+class CNTR {
+
     static int foo;
-    /*public static int test(int a, boolean b){
-        int c;
-        c =1;
-        b=true;
-        return a+c;
-    }*/
-    public static int newF(){
-        int r1;
-        r1=2222;
-    return 10;
+    static int temp;
+    public static int init(){
+        foo=-10;
+        return foo;
+    }
+    public static int recCNT(){
+        if(0 < -10){
+            System.out.println(foo);
+            foo = foo - 1;
+            //temp=CNTR.recCNT();
+        }else{
+
+        }
+        return 10;
     }
 }
 
@@ -45,11 +44,15 @@ public class Cls2 {
         int omid;
         boolean thebool;
         boolean test;
-        thebool = false;
-        omid = Cls123.newF();
 
-        System.out.println(omid);
-        System.out.println(Cls.qwe());
+        //b= CNTR.init();
+        //a= CNTR.recCNT();
+        //System.out.println(Cls.foo);
+        if(0<10){
+            System.out.println(22);
+        }else{
+            System.out.println(33);
+        }
     }
 }
 
