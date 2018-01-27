@@ -21,8 +21,8 @@ codegen_inputs = {"#pid","#assign","#addIDToSymTable",
                   "#pBOOLconst",
                   "#SAVE_PC","#genWhile","#endWhile",
                   "#genFor","#endFor",
-                  "#genFunc","#endFunc",
-                  "#callFUNC","#endCallFUNC"
+                  "#genFunc","#endFunc","#initFuncParam",
+                  "#callFUNC","#endCallFUNC","#pFuncArgs"
 
 }
 
@@ -119,10 +119,9 @@ class FUNCscop():
 
     def __init__(self, name, CLS_scop_index):
         self.pointer = []  #To point to other scopes by there INDEX in CLSscop_list! (python has no pointers!!!)
-        self.id_elems = []  #The Identifiers
+        self.id_elems = []  #The Identifiers format: (name,Type,address)
         self.code_block = []  #Contains the output code :D
-        self.param_inputs_CNT = 0
-        self.vars_CNT = 0
+        self.param_id_elems = []
         self.return_type = None
         self.name=name
         self.address=0
@@ -132,6 +131,20 @@ class FUNCscop():
         else:
             self.is_main = True
 
+    #Adding the argument IDs
+    def add_param_ID(self,type,id_name):
+        if (type == "int"):
+            tempAlloc= alloc_4byte()
+            self.param_id_elems.append((id_name, "INT", tempAlloc))
+            self.id_elems.append((id_name, "INT", tempAlloc))
+        elif (type == "boolean"):
+            tempAlloc= alloc_4byte()
+            self.param_id_elems.append((id_name, "BOOL", tempAlloc))
+            self.id_elems.append((id_name, "BOOL", tempAlloc))
+        else:  # ERROR
+            print "Undefined Type " + type
+
+    #Adding other IDs
     def add_ID(self,type,id_name):# INT|BOOLEAN
         if(type=="int"):
             self.id_elems.append((id_name,"INT",alloc_4byte()))
@@ -153,14 +166,6 @@ class FUNCscop():
                     break
         return output
 
-
-    # def give_FUNC_elem(self,func_name):# Find a FUNC
-    #     output = None
-    #     # We don't have a function in a function scope!
-    #     for index in self.pointer:
-    #         output = CLSscop_list[index].give_FUNC_elem(func_name)
-    #         if(output != None):
-    #             break
 
 
 def token_to_terminal(token):
@@ -198,6 +203,8 @@ class Parser():
     PB=[]# Program Block
     PC=0
     SS=[]# Semantic Stack
+
+    calling_func_idx=-1
 
     #These codes have to be called at the start of the program (start of main CLS)
     def gen_initial_code(self):
@@ -238,7 +245,6 @@ class Parser():
             self.SS.append(self.current_token[1])
         elif(action=="#insIDadd"):# Put the address of an Id in the scope instead of there name
             if (self.in_func_scope):
-                print "FLAG4:",self.SS[-1]
                 ID_tuple=FUNCscop_list[self.FUNscope_index].give_ID_elem(self.SS[-1])
             else:
                 ID_tuple=CLSscop_list[self.CLSscope_index].give_ID_elem(self.SS[-1])
@@ -248,8 +254,8 @@ class Parser():
                 self.abort = True
                 return
             self.SS.pop()
-            self.SS.append(ID_tuple[1])# Here we put the address
-            self.SS.append(ID_tuple[2])# Here we put the address
+            self.SS.append(ID_tuple[1])#Here we put the type
+            self.SS.append(ID_tuple[2])#Here we put the address
         elif(action=="#pconst"):
             self.SS.append("INT")
             self.SS.append("#" + str(self.current_token[1]))
@@ -320,17 +326,16 @@ class Parser():
             CodeLength=len(self.PB)
             Exit_comm_index = CodeLength - 1
 
-            start_list = [0]
+
             for i in range(0,len(FUNCscop_list)):
                 FUNCscop_list[i].address = CodeLength
                 self.PB.extend(FUNCscop_list[i].code_block)
                 CodeLength=len(self.PB)
-                start_list.append(CodeLength)
 
             print "Code length:",CodeLength
 
             i = 0
-            while (i < start_list[1]):
+            while (i <= Exit_comm_index):
                 if (isinstance(self.PB[i][1], tuple)):
                     if (self.PB[i][1][0] == '^'):
                         self.PB[i] = (
@@ -355,8 +360,13 @@ class Parser():
                         self.PB[i][3])
                 i = i + 1
 
-            for idx in range(1,len(FUNCscop_list)):
-                while(i<start_list[idx+1]):
+            idx = 0
+            while idx < len(FUNCscop_list):
+                if(idx + 1 < len(FUNCscop_list)):
+                    limit = FUNCscop_list[idx + 1].address
+                else:
+                    limit = CodeLength
+                while(i < limit):
                     if(isinstance(self.PB[i][1],tuple)):
                         if(self.PB[i][1][0]=='^'):
                             self.PB[i] = (self.PB[i][0], "#"+str(FUNCscop_list[idx].address+self.PB[i][1][1]),self.PB[i][2],self.PB[i][3])
@@ -372,6 +382,8 @@ class Parser():
                         # elif (self.PB[i][2][0] == '#^'):
                         #     self.PB[i] = (self.PB[i][0], self.PB[i][1], "#"+str(FUNCscop_list[idx].address + self.PB[i][2][1]), self.PB[i][3])
                     i = i + 1
+                idx = idx + 1
+
             self.PB[Exit_comm_index] = ("JP",CodeLength,None,None)
 
             print "\nFinished Compilation with " + str(self.Error_CNT) \
@@ -531,6 +543,7 @@ class Parser():
             self.SS.pop()
             self.SS.pop()
             self.SS.pop()
+
         elif(action=="#genFunc"):
             self.in_func_scope = True
             #Adding function to FUNC list
@@ -548,8 +561,13 @@ class Parser():
             # Cleaning the Code Block to put the new function codes in it; will be saved later in endFunc
             self.PB = []
             self.PC = 0
+        elif(action=="#initFuncParam"):
             # generate the parameter reading code:
-            pass
+            FUNCscop_list[self.FUNscope_index].add_param_ID(self.SS[-2],self.SS[-1])
+            self.gen_pop_stack(FUNCscop_list[self.FUNscope_index].give_ID_elem(self.SS[-1])[2])#Search by name, then genarate code to read from stack
+            self.SS.pop()
+            self.SS.pop()
+
         elif(action=="#endFunc"):
             #Check if return type is same with the function output type:
             if((self.SS[-2] in ("BOOL","INT")) and FUNCscop_list[self.FUNscope_index].return_type != self.SS[-2]):#ERROR semantic
@@ -570,37 +588,63 @@ class Parser():
             FUNCscop_list[self.FUNscope_index].code_block = self.PB
             self.in_func_scope = False
         elif(action=="#callFUNC"):
-            #Generate code for storing params in the stack:
-            pass
-            #Saving the return place after calling the function
-            self.gen_push_stack(("^",self.PC+3))# '^' means to add the start of the current function block address to the next param
-
+            #Generate code for storing current scope variables in the stack:
+            for element in FUNCscop_list[self.FUNscope_index].id_elems:#element format: (name,TYPE,address)
+                self.gen_push_stack(element[2])
+            #Setting the function index that we are calling
             the_CLS_index = give_CLS_index(self.SS[-2])
-            if(the_CLS_index != None):
-                the_FUNC_idx = CLSscop_list[the_CLS_index].give_FUNC_Index(self.SS[-1])
-                if(the_FUNC_idx != None):
-                    # Saving function index we have to change the tuple with the start of functions block address
-                    self.PB.append(("JP", ("*", the_FUNC_idx), None,None))#Here we jump to the called function
-                    self.PC = self.PC + 1
-                    self.SS.pop()
-                    self.SS.pop()
-                else:#ERROR semantic
+            if (the_CLS_index != None):
+                self.calling_func_idx = CLSscop_list[the_CLS_index].give_FUNC_Index(self.SS[-1])
+                if (self.calling_func_idx == None):# ERROR semantic
                     print "There is no function defenition in class " + self.SS[-2] + " named " + self.SS[-1]
                     print "Aborted parsing..."
                     self.abort = True
-            else:#ERROR semantic
+            else:  # ERROR semantic
                 print "There is no defined class called: " + self.SS[-2]
                 print "Aborted parsing..."
                 self.abort = True
-
-
+        elif(action == "#pFuncArgs"):
+            pass
         elif(action=="#endCallFUNC"):
+            # Saving the return place after calling the function
+            self.gen_push_stack(("^", self.PC + 2*len(FUNCscop_list[self.calling_func_idx].param_id_elems) + 3))  # '^' means to add the start of the current function block address to the next param
+
+            # Generate code for setting the arguments:
+            # Currently the SS stack contains all the Arguments for this function
+            for element in FUNCscop_list[self.calling_func_idx].param_id_elems[::-1]:  # iterating in reverse
+                if ((self.SS[-2] in ("INT", "BOOL")) and self.SS[-2] != element[1]):  # ERROR semantic
+                    print "Input argument for function " + FUNCscop_list[self.calling_func_idx].name + " is different"
+                    print "Aborted parsing..."
+                    self.abort = True
+                    break
+                else:  # Generate a code to put the value of the address in the stack
+                    self.gen_push_stack(self.SS[-1])
+                    self.SS.pop()
+                    self.SS.pop()
+
+            # Saving function index we have to change the tuple with the start of functions block address
+            self.PB.append(("JP", ("*", self.calling_func_idx), None, None))  # Here we jump to the called function
+            self.PC = self.PC + 1
+            self.SS.pop()
+            self.SS.pop()
+
+
+            #Cleaning the stack:
+            #First we will save the return value
             temp_ret_val = alloc_4byte()
             self.gen_pop_stack(temp_ret_val)
             self.SS.append(None)  # Don't know the return type
             self.SS.append(temp_ret_val)
-            # There is a an address which we don't need it anymore
+
+            #Second there is a an address which we don't need it anymore
             self.gen_mv_stack_pointer(-1)#moving SP a unit down
+
+            #Third getting back the current scope params
+            # Generate code for LOADING current scope variables FROM the stack:
+            for element in FUNCscop_list[self.FUNscope_index].id_elems[::-1]:  # revrse!!!
+                self.gen_pop_stack(element[2])
+
+
 
 
 

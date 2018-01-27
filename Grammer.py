@@ -232,9 +232,9 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("H_PRIME",'('):["#callFUNC",'(',"Arguments",')',"#endCallFUNC"],
 
                 ("Parameters",')'):['epsilon'],
-                ("Parameter",')'):['epsilon'],
+                ("Parameter",')'):["#initFuncParam"],
                 ("Arguments",')'):['epsilon'],
-                ("Argument",')'):['epsilon'],
+                ("Argument",')'):["#pFuncArgs"],
                 ("C_PRIME",')'):['epsilon'],
                 ("D_PRIME",')'):['epsilon'],
                 ("E_PRIME",')'):['epsilon'],
@@ -251,7 +251,7 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
                 ("G_PRIME",'+'):["#insIDadd"],
                 ("H_PRIME",'+'):["#pCLS_ID"],#OK
 
-                ("Parameter",','):[',',"Type","Identifier","#insIDadd","Parameter"],
+                ("Parameter",','):["#initFuncParam",',',"Type","Identifier","Parameter"],
                 ("Argument",','):[',',"GenExpression","Argument"],
                 ("C_PRIME",','):['epsilon'],
                 ("D_PRIME",','):['epsilon'],
@@ -344,12 +344,12 @@ ll1ParseTable_with_codegens = {("GenExpression",'('):["Expression","N_PRIME"],
 
                 ("VarDeclarations",'boolean'):["VarDeclaration","VarDeclarations"],
                 ("VarDeclaration",'boolean'):["Type","Identifier","#addIDToSymTable",';'],#OK !
-                ("Parameters",'boolean'):["Type","Identifier","#insIDadd","Parameter"],#OK
+                ("Parameters",'boolean'):["Type","Identifier","Parameter"],#OK
                 ("Type",'boolean'):["#BOOL",'boolean'],
 
                 ("VarDeclarations", 'int'): ["VarDeclaration", "VarDeclarations"],
                 ("VarDeclaration", 'int'): ["Type","Identifier","#addIDToSymTable", ';'],#OK !
-                ("Parameters", 'int'): ["Type", "Identifier","#insIDadd", "Parameter"],#OK
+                ("Parameters", 'int'): ["Type", "Identifier", "Parameter"],#OK
                 ("Type",'int'):["#INT",'int'],
 
                 ("VarDeclarations",'if'):['epsilon'],

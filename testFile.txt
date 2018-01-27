@@ -1,5 +1,4 @@
-//true
-//False
+
 class Cls{
     static int foo;
     static int OMG;
@@ -15,15 +14,23 @@ class Cls{
     }
 }
 
-class CNTR {
+class CNTR extends Cls{
 
     static int foo;
     static int temp;
-    public static int init(){
-        foo=10;
-        return foo;
+    public static int recfunc(int input)
+    {
+        int i;
+        i=0;
+        if(input<10){
+            System.out.println(input);
+            i=CNTR.recfunc(input+1);
+        }else{
+            i=5;
+        }
+        return i;
     }
-    public static int recCNT(){
+    /*public static int recCNT(){
         if(0 < foo){
             System.out.println(foo);
             foo = foo - 1;
@@ -32,27 +39,19 @@ class CNTR {
 
         }
         return 10;
-    }
+    }*/
 }
 
 
 // hi
-public class Cls2 {
+public class MainCls {
     public static void main(){
         int b;
-        int a;
-        int omid;
-        boolean thebool;
-        boolean test;
 
-        b= CNTR.init();
-        a= CNTR.recCNT();
-        //System.out.println(Cls.foo);
-        /*if(0<-10){
-            System.out.println(22);
-        }else{
-            System.out.println(33);
-        }*/
+        b=0;
+        b= CNTR.recfunc(2);
+        System.out.println(b);
+        System.out.println(CNTR.recfunc(2) + CNTR.recfunc(7));
     }
 }
 
