@@ -1,57 +1,58 @@
 
-class Cls{
+class Math{
     static int foo;
     static int OMG;
     static boolean d;
 
-    public static int qwe(){
-        int a;
-        int g;
-        a=13;
-        g=23;
-        foo = 12;
-        return a+g;
+    public static int Mult(int a,int b){
+        int temp;
+        int output;
+        output = 0;
+        for(temp = 0; temp < a ;temp += 1){
+            output = output + b;
+        }
+        return output;
     }
 }
 
-class CNTR extends Cls{
+class myClass extends Math{
 
     static int foo;
     static int temp;
-    public static int recfunc(int input)
+    public static int fibonacci(int input)
     {
         int i;
-        i=0;
-        if(input<10){
-            System.out.println(input);
-            i=CNTR.recfunc(input+1);
-        }else{
-            i=5;
+        int t1;
+        int t2;
+        t1 = 0;
+        t2 = 0;
+        i = 0;
+        if(input < 1)
+        {
+            i = 1;
+        }
+        else
+        {
+            if(input == 1)
+            {
+                i = 1;
+            }
+            else
+            {
+                t1= myClass.fibonacci(input - 1);
+                t2 = myClass.fibonacci(input - 2);
+                i = t1 + t2;
+            }
         }
         return i;
     }
-    /*public static int recCNT(){
-        if(0 < foo){
-            System.out.println(foo);
-            foo = foo - 1;
-            temp=CNTR.recCNT();
-        }else{
 
-        }
-        return 10;
-    }*/
 }
 
-
-// hi
 public class MainCls {
     public static void main(){
-        int b;
-
-        b=0;
-        b= CNTR.recfunc(2);
-        System.out.println(b);
-        System.out.println(CNTR.recfunc(2) + CNTR.recfunc(7));
+        //Here is how we call the function:
+        System.out.println(myClass.fibonacci(10));
     }
 }
 
