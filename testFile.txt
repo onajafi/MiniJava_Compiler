@@ -20,14 +20,14 @@ class CNTR {
     static int foo;
     static int temp;
     public static int init(){
-        foo=-10;
+        foo=10;
         return foo;
     }
     public static int recCNT(){
-        if(0 < -10){
+        if(0 < foo){
             System.out.println(foo);
             foo = foo - 1;
-            //temp=CNTR.recCNT();
+            temp=CNTR.recCNT();
         }else{
 
         }
@@ -45,14 +45,14 @@ public class Cls2 {
         boolean thebool;
         boolean test;
 
-        //b= CNTR.init();
-        //a= CNTR.recCNT();
+        b= CNTR.init();
+        a= CNTR.recCNT();
         //System.out.println(Cls.foo);
-        if(0<10){
+        /*if(0<-10){
             System.out.println(22);
         }else{
             System.out.println(33);
-        }
+        }*/
     }
 }
 
