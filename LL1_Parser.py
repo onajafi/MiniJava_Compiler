@@ -3,7 +3,6 @@ PARSE_DBG = False
 CODE_GENERATE_DBG = True
 
 USING_PanicMode = True
-
 GIVE_INITIAL_VALS_TO_VARS = True
 
 data_memory_iterator = 2000 #The start of the dynamic memory is here
@@ -208,6 +207,8 @@ class Parser():
 
     calling_func_idx=-1
 
+    func_input_arg_CNT = 0
+
     #These codes have to be called at the start of the program (start of main CLS)
     def gen_initial_code(self):
         self.PB.append(("ASSIGN",'#' + str(stack_memory_start),stack_pointer,None))
@@ -250,7 +251,6 @@ class Parser():
                 ID_tuple=FUNCscop_list[self.FUNscope_index].give_ID_elem(self.SS[-1])
             else:
                 ID_tuple=CLSscop_list[self.CLSscope_index].give_ID_elem(self.SS[-1])
-
             if(ID_tuple==None):#ERROR semantic
                 print "Undefined identifier: " + self.SS[-1] + "\nAborted parsing..."
                 self.abort = True
@@ -274,6 +274,7 @@ class Parser():
                 print "can't assign two different type: BOOL and INT"
                 print "Aborted parsing..."
                 self.abort=True
+                return
         elif(action=="#addIDToSymTable"):# Add an entry to the symbol table
             if(self.in_func_scope):
                 FUNCscop_list[self.FUNscope_index].add_ID(self.SS[-2],self.SS[-1])
@@ -317,6 +318,7 @@ class Parser():
                 else:# ERROR semantic
                     print "The extension " + self.SS[-1] + " was not found\nAborted parsing..."
                     self.abort = True
+                    return
 
             else:
                 CLSscop_list.append(CLSscop(self.SS[-2]))
@@ -407,9 +409,11 @@ class Parser():
                           + " scope, named: " + self.SS[-1]
                     print "Aborted parsing..."
                     self.abort = True
+                    return
             else:#ERROR semantic
                 print "There is no defined class named " + self.SS[-2] + "\nAborted parsing..."
                 self.abort = True
+                return
         elif(action=="#MULT"):
             if(self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
                 temp_WORD = alloc_4byte()
@@ -425,6 +429,7 @@ class Parser():
                 print "Can't multiply booleans !!!"
                 print "Aborted parsing..."
                 self.abort=True
+                return
         elif(action=="#ADD"):
             if (self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
                 temp_WORD = alloc_4byte()
@@ -440,6 +445,7 @@ class Parser():
                 print "Can't do addition on booleans !!!"
                 print "Aborted parsing..."
                 self.abort = True
+                return
         elif(action=="#SUB"):
             if (self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
                 temp_WORD = alloc_4byte()
@@ -455,6 +461,7 @@ class Parser():
                 print "Can't do subtraction on booleans !!!"
                 print "Aborted parsing..."
                 self.abort = True
+                return
         elif(action=="#LT"):
             if (self.SS[-2] != "BOOL" and self.SS[-4] != "BOOL"):
                 temp_WORD = alloc_4byte()
@@ -470,6 +477,7 @@ class Parser():
                 print "Can't comapare booleans !!!"
                 print "Aborted parsing..."
                 self.abort = True
+                return
         elif(action=="#EQ"):
             temp_WORD = alloc_4byte()
             self.PB.append(("EQ", self.SS[-3], self.SS[-1], temp_WORD))
@@ -495,6 +503,7 @@ class Parser():
                 print "Can't use an integer in a logical operation"
                 print "Aborted parsing..."
                 self.abort = True
+                return
         elif(action=="#genIf"):
             self.SS.append(self.PC)# Saving the address space for JPF command
             self.PB.append(None)# We will fill this in #genElse
@@ -566,12 +575,14 @@ class Parser():
             # Cleaning the Code Block to put the new function codes in it; will be saved later in endFunc
             self.PB = []
             self.PC = 0
+            self.func_input_arg_CNT = 0
         elif(action=="#initFuncParam"):
             # generate the parameter reading code:
             FUNCscop_list[self.FUNscope_index].add_param_ID(self.SS[-2],self.SS[-1])
             self.gen_pop_stack(FUNCscop_list[self.FUNscope_index].give_ID_elem(self.SS[-1])[2])#Search by name, then genarate code to read from stack
             self.SS.pop()
             self.SS.pop()
+            self.func_input_arg_CNT = self.func_input_arg_CNT + 1
 
         elif(action=="#endFunc"):
             #Check if return type is same with the function output type:
@@ -579,6 +590,7 @@ class Parser():
                 print "In " + FUNCscop_list[self.FUNscope_index].name + " the return type is diffrent with the specified one"
                 print "Aborted parsing..."
                 self.abort = True
+                return
             self.gen_push_stack(self.SS[-1])#Saving the return value of the function
             self.SS.pop()#The return val address
             self.SS.pop()#The return val type
@@ -604,13 +616,18 @@ class Parser():
                     print "There is no function defenition in class " + self.SS[-2] + " named " + self.SS[-1]
                     print "Aborted parsing..."
                     self.abort = True
+                    return
             else:  # ERROR semantic
                 print "There is no defined class called: " + self.SS[-2]
                 print "Aborted parsing..."
                 self.abort = True
+                return
         elif(action == "#pFuncArgs"):
-            pass
+            self.func_input_arg_CNT = self.func_input_arg_CNT - 1
         elif(action=="#endCallFUNC"):
+            if(self.func_input_arg_CNT != 0):
+                print "Wrong number of inputs for function ",FUNCscop_list[self.calling_func_idx].name
+                self.abort = True
             # Saving the return place after calling the function
             self.gen_push_stack(("^", self.PC + 2*len(FUNCscop_list[self.calling_func_idx].param_id_elems) + 3))  # '^' means to add the start of the current function block address to the next param
 
@@ -621,7 +638,7 @@ class Parser():
                     print "Input argument for function " + FUNCscop_list[self.calling_func_idx].name + " is different"
                     print "Aborted parsing..."
                     self.abort = True
-                    break
+                    return
                 else:  # Generate a code to put the value of the address in the stack
                     self.gen_push_stack(self.SS[-1])
                     self.SS.pop()
@@ -638,7 +655,7 @@ class Parser():
             #First we will save the return value
             temp_ret_val = alloc_4byte()
             self.gen_pop_stack(temp_ret_val)
-            self.SS.append(None)  # Don't know the return type
+            self.SS.append(FUNCscop_list[self.calling_func_idx].return_type)  # Don't know the return type
             self.SS.append(temp_ret_val)
 
             #Second there is a an address which we don't need it anymore
@@ -703,7 +720,7 @@ class Parser():
                         print "Poping: " + self.stack.pop()
                     else:
                         break
-                else:# ERROR we the LL(1) table is empty :(
+                else:# ERROR the LL(1) table is empty :(
                     self.Error_CNT = self.Error_CNT + 1
                     print "\nERROR LL(1) table is empty..."
                     print "The table Entry is:", (self.stack[-1],input_term)

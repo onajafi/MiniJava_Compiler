@@ -64,6 +64,8 @@ class tokenScanner():
         if(self.we_already_have_a_char):# There is a char left for process!
             self.we_already_have_a_char = False # We don't want to get in a loop!
             self.getChar(self.lastChar)
+        if(inputChar=='$'):
+            return ("ERROR","Wronginput: "+inputChar)
         # print "state is: " + str(self.state),self.tempStr
         if(self.state==0):
             if(inputChar=='/'):#Check for comments
@@ -83,8 +85,6 @@ class tokenScanner():
                 self.state = 4
             elif (inputChar == "" or inputChar == None):
                 return ("STOP","END OF FILE")
-            else:
-                self.tempStr = ""
 
         elif(self.state==1):#ID
             if (inputChar == '/'):  # Check for comments
@@ -96,6 +96,7 @@ class tokenScanner():
                 self.tempStr += inputChar
             else:
                 return self.constructToken(inputChar)
+
 
         elif(self.state==2):#Digit
             if (inputChar == '/'):  # Check for comments

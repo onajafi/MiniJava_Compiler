@@ -1,59 +1,33 @@
 
-class Math{
-    static int foo;
-    static int OMG;
-    static boolean d;
 
-    public static int Mult(int a,int b){
-        int temp;
-        int output;
-        output = 0;
-        for(temp = 0; temp < a ;temp += 1){
-            output = output + b;
-        }
-        return output;
-    }
-}
-
-class myClass extends Math{
+class myClass{
 
     static int foo;
     static int temp;
-    public static int fibonacci(int input)
-    {
-        int i;
-        int t1;
-        int t2;
-        i = 0;
-        if(input < 1)
-        {
-            i = 1;
-        }
-        else
-        {
-            if(input == 1)
-            {
-                i = 1;
-            }
-            else
-            {
-                t1= myClass.fibonacci(input - 1);
-                t2 = myClass.fibonacci(input - 2);
-                i = t1 + t2;
-            }
-        }
-        return i;
+
+
+
+    public static int test1(int i){
+
+
+        return 10;
     }
 
 }
 
 public class MainCls {
     public static void main(){
-        //Here is how we call the function:
-        int i;
-        i = i +1000003;
-        System.out.println(myClass.fibonacci(10));
-        System.out.println(i);
+
+        int $a;
+        boolean b;
+        //b=myClass.isPrime(31);
+
+        //Here is how we call & show the function:
+        //System.out.println(myClass.fibonacci(10));
+
+        //The output of isPrime
+        //System.out.println(b);
+        a=myClass.test1(9);
     }
 }
 

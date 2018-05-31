@@ -30,35 +30,51 @@ my_parser = LL1_Parser.Parser()
 
 f = open("testFile.txt", "r") #opens file with name of "test.txt"
 
+goodbye=False
 
-while True:
+while not goodbye:
     outprint = TScan.getChar(f.read(1))
     if outprint != None:
         #print outprint
         my_parser.get_token(outprint)
         if(outprint[1]=='EOF' or outprint[0]=="STOP"):
             break
+        if(outprint[0]=="ERROR"):
+            print "ERROR: " + outprint[1]
+            goodbye = True
 
 f.close()
-print "\nThe output will be like:"
-for line,command in enumerate(my_parser.PB):
-    print line, command
+if(not goodbye):
+    print "\nThe output will be like:"
+    for line,command in enumerate(my_parser.PB):
+        print line, command
 
 
-output_file = open("output.txt","w")
-for line,command in enumerate(my_parser.PB):
-    output_file.write(str(line) + "\t" + '(')
-    if (command[0] != None):
-        output_file.write(str(command[0])+ ', ')
-    if (command[1] != None):
-        output_file.write(str(command[1]) + ', ')
-    if (command[2] != None):
-        output_file.write(str(command[2]) + ', ')
-    if (command[3] != None):
-        output_file.write(str(command[3]))
-    output_file.write(')\n')
+    output_file = open("output.txt","w")
+    for line,command in enumerate(my_parser.PB):
+        output_file.write(str(line) + "\t" + '(')
+        if (command[0] != None):
+            output_file.write(str(command[0])+ ', ')
+        if (command[1] != None):
+            output_file.write(str(command[1]) + ', ')
+        if (command[2] != None):
+            output_file.write(str(command[2]) + ', ')
+        if (command[3] != None):
+            output_file.write(str(command[3]))
+        output_file.write(')\n')
 
-output_file.close()
+    output_file.close()
+
+    print "Done"
+    if(my_parser.abort or my_parser.Error_CNT):
+        if(my_parser.abort):
+            print "But with error(s) and " + str(my_parser.Error_CNT) + " warning(s)"
+        else:
+            print str(my_parser.Error_CNT) + " warning(s)"
+    else:
+        print "With no errors :)"
+
+
 
 # tempset = {("omg","yay"):["Hi","iiii"],"holymoly":"funny","idfdf":"dead end"}
 #
